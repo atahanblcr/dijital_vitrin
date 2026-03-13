@@ -1,0 +1,17 @@
+# CURRENT PHASE: Faz 2 - İçerik Sistemleri
+# CURRENT TASK: Blog Yönetimi Tamamlandı. Hata Mesajları ve Validasyon Katmanı Tamamlanıp Faz 3'e geçilecek.
+
+## RECENT ACTIONS (Son Yapılan İşlemler):
+- **Oluşturulanlar / Düzenlemeler (API Tarafı):**
+  - `packages/api/src/validators/blog.validator.ts`: Başlık, içerik, SEO meta açıklaması ve ileri zamanlı yayınlanma (datetime) için Zod şemaları yazıldı.
+  - `packages/api/src/controllers/blog.controller.ts`: Yazıları listeleme, detay getirme, slug türeterek oluşturma, silme ve güncelleme yetenekleri eklendi.
+  - `business.routes.ts`: `blog` rotaları bağlandı.
+- **Oluşturulanlar / Düzenlemeler (Frontend - İşletme Admin Tarafı):**
+  - `@tiptap/react`, `@tiptap/starter-kit`, `date-fns` vb. paketlerin kurulumu yapıldı.
+  - `apps/admin-panel/tailwind.config.js`: `@tailwindcss/typography` plugini (Tiptap prose için zorunlu) eklendi.
+  - `BlogEditor.tsx`: Özel araç çubuklu (H2, H3, Bold, Italic, Listeler, Link) Tiptap Zengin Metin Düzenleyici, SEO meta açıklaması alanı ve anında / ileri tarihli yayınlama arayüzleri tasarlandı.
+  - `BlogList.tsx`: Blogların "TASLAK", "ZAMANLANMIŞ" ve "YAYINDA" rozetleriyle listelendiği, tarih formatlarının `date-fns` ve TR yereli ile dönüştürüldüğü sayfa yazıldı.
+  - Route yönlendirmesi tamamlandı.
+
+## NEXT STEPS (Sıradaki Adımlar):
+- Faz 2'nin onaylanması ve Faz 3'e (Vitrin Sitesi Next.js SSR Altyapısı) geçiş.

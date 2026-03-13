@@ -1,0 +1,347 @@
+# SKILL: Veritabanı (PostgreSQL + Prisma)
+
+> Bu dosya, Dijital Vitrin projesinin veritabanı şemasını ve Prisma ORM kullanım
+> kurallarını kapsar. Migration oluşturmadan önce bu dosya okunmalıdır.
+
+---
+
+## 1. PRISMA ŞEMASI — TAM YAPISI
+
+```prisma
+// packages/database/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUM'LAR ─────────────────────────────────────────────
+
+enum Sector {
+  elektronik
+  butik
+  aksesuar
+  el_isi
+  oto_galeri
+}
+
+enum UserRole {
+  super_admin
+  business_admin
+}
+
+enum SortMode {
+  random
+  manual
+}
+
+enum SubscriptionPlan {
+  monthly
+  yearly
+}
+
+enum AttributeType {
+  text
+  number
+  select
+}
+
+enum BlogStatus {
+  draft
+  published
+}
+
+enum EventType {
+  page_view
+  product_view
+  whatsapp_click
+  blog_view
+}
+
+// ─── TABLOLAR ─────────────────────────────────────────────
+
+model Business {
+  id                    String           @id @default(uuid())
+  name                  String           @db.VarChar(150)
+  slug                  String           @unique @db.VarChar(100)
+  sector                Sector
+  whatsapp              String           @db.VarChar(20)
+  logo_url              String?
+  banner_url            String?
+  theme_preset          String?          @db.VarChar(50)
+  theme_primary         String           @db.Char(7)
+  theme_accent          String           @db.Char(7)
+  slogan                String?          @db.VarChar(100)
+  about_text            String?          @db.Text
+  maps_url              String?
+  instagram_url         String?
+  facebook_url          String?
+  tiktok_url            String?
+  max_images_per_product Int             @default(7)
+  product_sort_mode     SortMode         @default(random)
+  is_active             Boolean          @default(true)
+  auto_deactivate       Boolean          @default(false)
+  subscription_plan     SubscriptionPlan
+  subscription_end      DateTime         @db.Date
+  created_at            DateTime         @default(now())
+
+  // Relations
+  hours                 BusinessHour[]
+  users                 User[]
+  categories            Category[]
+  products              Product[]
+  blog_posts            BlogPost[]
+  analytics_events      AnalyticsEvent[]
+  analytics_daily       AnalyticsDaily[]
+
+  @@index([slug])
+  @@index([is_active])
+  @@index([subscription_end])
+}
+
+model BusinessHour {
+  id          String   @id @default(uuid())
+  business_id String
+  day_of_week Int      // 0=Pazar, 1=Pazartesi, ..., 6=Cumartesi
+  is_open     Boolean
+  open_time   String?  @db.VarChar(5)  // "09:00"
+  close_time  String?  @db.VarChar(5)  // "18:00"
+
+  business    Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  @@unique([business_id, day_of_week])
+}
+
+model User {
+  id              String    @id @default(uuid())
+  username        String    @unique @db.VarChar(50)
+  password_hash   String
+  role            UserRole
+  business_id     String?
+  totp_secret     String?
+  totp_enabled    Boolean   @default(false)
+  failed_attempts Int       @default(0)
+  locked_until    DateTime?
+  last_login      DateTime?
+  created_at      DateTime  @default(now())
+
+  business        Business? @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  @@index([username])
+  @@index([business_id])
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  business_id String
+  name        String    @db.VarChar(100)
+  sort_order  Int       @default(0)
+  created_at  DateTime  @default(now())
+
+  business    Business            @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  attributes  CategoryAttribute[]
+  products    Product[]
+
+  @@index([business_id])
+}
+
+model CategoryAttribute {
+  id          String        @id @default(uuid())
+  category_id String
+  name        String        @db.VarChar(100)
+  type        AttributeType
+  unit        String?       @db.VarChar(20)
+  is_required Boolean       @default(false)
+  is_multiple Boolean       @default(false)  // Çoklu seçim (multi-select)
+  sort_order  Int           @default(0)
+
+  category    Category                @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  options     AttributeOption[]
+  values      ProductAttributeValue[]
+
+  @@index([category_id])
+}
+
+model AttributeOption {
+  id           String @id @default(uuid())
+  attribute_id String
+  value        String @db.VarChar(100)
+  sort_order   Int    @default(0)
+
+  attribute   CategoryAttribute       @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
+  values      ProductAttributeValue[]
+
+  @@index([attribute_id])
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  business_id String
+  category_id String
+  name        String   @db.VarChar(100)
+  slug        String   @db.VarChar(120)
+  short_desc  String?  @db.VarChar(150)
+  long_desc   String?  @db.Text
+  is_campaign Boolean  @default(false)
+  in_stock    Boolean  @default(true)
+  is_active   Boolean  @default(true)
+  sort_order  Int?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  business    Business                @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  category    Category                @relation(fields: [category_id], references: [id])
+  images      ProductImage[]
+  attr_values ProductAttributeValue[]
+  analytics   AnalyticsEvent[]
+
+  @@unique([business_id, slug])
+  @@index([business_id])
+  @@index([category_id])
+  @@index([is_active, is_campaign])
+}
+
+model ProductAttributeValue {
+  id              String  @id @default(uuid())
+  product_id      String
+  attribute_id    String
+  value_text      String? @db.Text
+  value_number    Decimal? @db.Decimal(10, 2)
+  value_option_id String? // Tekli select için
+
+  product         Product           @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  attribute       CategoryAttribute @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
+  option          AttributeOption?  @relation(fields: [value_option_id], references: [id])
+
+  @@unique([product_id, attribute_id])
+  @@index([product_id])
+}
+
+// Çoklu select değerleri için ayrı tablo
+model ProductAttributeMultiValue {
+  id           String @id @default(uuid())
+  product_id   String
+  attribute_id String
+  option_id    String
+
+  @@unique([product_id, attribute_id, option_id])
+  @@index([product_id, attribute_id])
+}
+
+model ProductImage {
+  id         String  @id @default(uuid())
+  product_id String
+  url        String
+  public_id  String  // Cloudinary public_id (silme için gerekli)
+  is_primary Boolean @default(false)
+  sort_order Int     @default(0)
+
+  product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id])
+}
+
+model BlogPost {
+  id               String     @id @default(uuid())
+  business_id      String
+  title            String     @db.VarChar(150)
+  slug             String     @db.VarChar(170)
+  content          String     @db.Text
+  cover_image_url  String?
+  cover_image_pid  String?    // Cloudinary public_id
+  meta_description String?    @db.VarChar(160)
+  status           BlogStatus @default(draft)
+  published_at     DateTime?
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+
+  business         Business       @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  analytics        AnalyticsEvent[]
+
+  @@unique([business_id, slug])
+  @@index([business_id, status])
+}
+
+model AnalyticsEvent {
+  id           String    @id @default(uuid())
+  business_id  String
+  product_id   String?
+  blog_post_id String?
+  event_type   EventType
+  ip_hash      String    @db.Char(64)
+  is_mobile    Boolean
+  is_bot       Boolean   @default(false)
+  created_at   DateTime  @default(now())
+
+  business     Business  @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  product      Product?  @relation(fields: [product_id], references: [id])
+  blog_post    BlogPost? @relation(fields: [blog_post_id], references: [id])
+
+  @@index([business_id, created_at])
+  @@index([business_id, event_type])
+  @@index([product_id])
+}
+
+model AnalyticsDaily {
+  id              String   @id @default(uuid())
+  business_id     String
+  product_id      String?
+  date            DateTime @db.Date
+  page_views      Int      @default(0)
+  unique_visitors Int      @default(0)
+  product_views   Int      @default(0)
+  whatsapp_clicks Int      @default(0)
+
+  business        Business @relation(fields: [business_id], references: [id], onDelete: Cascade)
+
+  @@unique([business_id, product_id, date])
+  @@index([business_id, date])
+}
+```
+
+---
+
+## 2. INDEX STRATEJİSİ
+
+Performans için kritik index'ler:
+
+| Tablo | Index | Gerekçe |
+|---|---|---|
+| businesses | slug | Subdomain lookup |
+| businesses | is_active, subscription_end | Dashboard filtresi |
+| products | business_id, is_active | Vitrin ürün listesi |
+| products | business_id, slug | Ürün detay sayfası |
+| analytics_events | business_id, created_at | İstatistik sorguları |
+| analytics_daily | business_id, date | Dashboard grafiği |
+
+---
+
+## 3. CASCADE DELETE KURALI
+
+Bir işletme silindiğinde **tüm ilişkili veriler** cascade ile silinir:
+- hours, users, categories, products, blog_posts, analytics
+
+Bir kategori silinmeden önce içindeki ürünler başka kategoriye taşınmalı.
+(API katmanında kontrol edilir — Prisma constraint değil, uygulama mantığı)
+
+---
+
+## 4. SEED VERİSİ
+
+```typescript
+// packages/database/prisma/seed.ts
+// Süper admin kullanıcısı oluşturur
+// 5 sektör için kategori şablonları ekler
+
+const SECTOR_TEMPLATES = {
+  elektronik: ['Telefon & Aksesuar', 'Bilgisayar', 'Ses & Görüntü', 'Küçük Ev Aletleri'],
+  butik: ['Kadın Giyim', 'Erkek Giyim', 'Çocuk Giyim', 'Dış Giyim'],
+  aksesuar: ['Takı & Mücevher', 'Çanta & Cüzdan', 'Saat', 'Gözlük'],
+  el_isi: ['El Örgüsü', 'Ahşap El Sanatları', 'Seramik & Çini', 'Tekstil & Nakış'],
+  oto_galeri: ['Binek Araç', 'SUV & Crossover', 'Ticari Araç', 'Motosiklet'],
+};
+```

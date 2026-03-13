@@ -1,0 +1,64 @@
+import cloudinary from '../config/cloudinary';
+import multer from 'multer';
+import { AppError } from '../middleware/errorHandler';
+
+// Multer: Disk yerine memory storage (RAM) kullanılır, bu sunucu diskini şişirmeyi engeller.
+// SKILL referansı: Max dosya boyutu 5MB, JPG/PNG/WebP destekleniyor.
+export const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new AppError(400, 'Yalnızca JPG, PNG ve WebP formatları kabul edilir'));
+    }
+  },
+});
+
+/**
+ * Görseli Cloudinary'ye yükler
+ * @param buffer Multer tarafından alınan dosya buffer'ı
+ * @param folder Cloudinary'deki hedef klasör (işletme ID'si olabilir)
+ * @param publicId İsteğe bağlı, üzerine yazmak istenirse
+ * @returns url ve publicId döner
+ */
+export async function uploadImage(
+  buffer: Buffer,
+  folder: string,
+  publicId?: string
+): Promise<{ url: string; publicId: string }> {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder, public_id: publicId, resource_type: 'image' },
+      (error, result) => {
+        if (error) {
+          console.error('Cloudinary Upload Error:', error);
+          reject(new AppError(500, 'Görsel yüklenirken bir hata oluştu'));
+        } else {
+          resolve({
+            url: result!.secure_url,
+            publicId: result!.public_id,
+          });
+        }
+      }
+    );
+    
+    // Buffer'ı stream'e yazıp bitiriyoruz
+    uploadStream.end(buffer);
+  });
+}
+
+/**
+ * Görseli Cloudinary'den siler
+ * @param publicId Cloudinary'deki benzersiz kimliği
+ */
+export async function deleteImage(publicId: string): Promise<void> {
+  try {
+    await cloudinary.uploader.destroy(publicId);
+  } catch (error) {
+    console.error('Cloudinary Delete Error:', error);
+    throw new AppError(500, 'Görsel silinirken bir hata oluştu');
+  }
+}

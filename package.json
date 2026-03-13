@@ -1,0 +1,18 @@
+{
+  "name": "dijital-vitrin",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=packages/api",
+    "dev:storefront": "npm run dev --workspace=apps/storefront",
+    "dev:admin": "npm run dev --workspace=apps/admin-panel",
+    "dev:super": "npm run dev --workspace=apps/super-admin",
+    "db:migrate": "npm run migrate --workspace=packages/database",
+    "db:seed": "npm run seed --workspace=packages/database",
+    "build:all": "npm run build --workspaces",
+    "type-check": "tsc --noEmit --project tsconfig.base.json"
+  }
+}
