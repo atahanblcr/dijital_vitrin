@@ -1,4 +1,14 @@
 import { z } from 'zod';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Load .env from project root relative to this file
+const rootEnvPath = path.resolve(__dirname, '../../../../.env');
+const result = dotenv.config({ path: rootEnvPath, override: true });
+
+if (result.error) {
+  console.warn('⚠️ .env dosyası yüklenirken hata oluştu:', result.error.message);
+}
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -18,6 +28,7 @@ const envParsed = envSchema.safeParse(process.env);
 
 if (!envParsed.success) {
   console.error('❌ Geçersiz Environment Değişkenleri:', envParsed.error.format());
+  console.log('💡 Aranan .env yolu:', rootEnvPath);
   process.exit(1);
 }
 

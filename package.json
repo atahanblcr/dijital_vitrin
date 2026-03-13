@@ -14,5 +14,13 @@
     "db:seed": "npm run seed --workspace=packages/database",
     "build:all": "npm run build --workspaces",
     "type-check": "tsc --noEmit --project tsconfig.base.json"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/supertest": "^7.2.0",
+    "@vitest/ui": "^4.1.0",
+    "supertest": "^7.2.2",
+    "ts-node": "^10.9.2",
+    "vitest": "^4.1.0"
   }
 }

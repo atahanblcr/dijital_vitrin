@@ -1,48 +1,41 @@
 # 🚀 DİJİTAL VİTRİN — Proje İlerleme Raporu (Progress)
 
-Bu dosya, projenin genel yol haritasındaki anlık durumumuzu ve başarılan kilometre taşlarını ayrıntılı olarak gösterir.
-
 ---
 
 ## 🟢 FAZ 1: Temel Altyapı (Tamamlandı)
-- [x] **1. Monorepo Kurulumu (npm workspaces)**
-- [x] **2. Veritabanı Şeması (Prisma migration)**
-- [x] **3. Kimlik Doğrulama Sistemi**
-- [x] **4. Güvenlik Katmanları (Rate limiting, Zod, Helmet, CORS)**
-- [x] **5. Süper Admin Paneli (Temel İskelet)**
-- [x] **6. İşletme Admin Paneli (Temel İskelet)**
-- [x] **7. Görsel Yükleme Altyapısı (Cloudinary & Multer)**
-- [x] **8. Subdomain Yönlendirme (Nginx)**
+- [x] Monorepo Kurulumu
+- [x] Veritabanı Şeması
+- [x] Kimlik Doğrulama Sistemi
+- [x] Güvenlik Katmanları
+- [x] Süper Admin & İşletme Admin Paneli (İskelet)
+- [x] Görsel Yükleme (Cloudinary)
+- [x] Subdomain Yönlendirme (Nginx)
 
 ---
 
 ## 🟢 FAZ 2: İçerik Sistemleri (Tamamlandı)
-- [x] Kategori ve özellik yönetimi (CRUD + Validasyon + Dinamik Alanlar)
-- [x] Ürün yönetimi API (Çoklu görsel, slug, dinamik özellik validasyonu)
-- [x] Ürün yönetimi UI (Sürükle-bırak upload, Zod validasyonlu form, arama ve tablo)
-- [x] Blog sistemi (Tiptap zengin metin, taslak/yayın, zamanlanmış yayın)
-- [x] Hata mesajları ve validasyon katmanı (Zod + ErrorHandler ile tüm sistemde aktif)
+- [x] Kategori ve Özellik Yönetimi
+- [x] Ürün Yönetimi
+- [x] Blog Sistemi
+- [x] Hata Mesajları ve Validasyon Katmanı
 
 ---
 
-## 🟡 FAZ 3: Vitrin Sitesi (Beklemede)
-- [ ] Next.js SSR altyapısı ve subdomain routing
-- [ ] Renk teması sistemi (CSS değişkenleri)
-- [ ] Vitrin tasarımı ve animasyon sistemi (Framer Motion)
-- [ ] Kampanyalı ürünler carousel, ürün detayı, özellik tablosu
-- [ ] WhatsApp entegrasyonu (wa.me)
+## 🟡 FAZ 3: Vitrin Sitesi (Kodlama Tamam, Otomasyon Eksik)
+- [x] Next.js SSR ve Subdomain Routing
+- [x] Renk Teması Sistemi
+- [x] Vitrin Tasarımı ve Animasyonlar
+- [x] Ürün Detayı ve WhatsApp Entegrasyonu
+- [ ] **EKSİK:** Otomatik testlerin (Vitest) monorepo üzerinde koşturulması başarısız oldu. Test kodları mevcut ancak manuel doğrulamaya (verify_api.ts) dayanılıyor.
 
 ---
 
 ## ⚪ FAZ 4: SEO ve İstatistik (Beklemede)
 - [ ] Meta etiketleri, OG, JSON-LD
-- [ ] Sitemap ve robots.txt otomatik üretimi
-- [ ] İstatistik event kayıt sistemi ve bot filtresi
-- [ ] Günlük özet cron job ve dashboard grafikleri
+- [ ] Sitemap ve robots.txt
+- [ ] İstatistik Sistemi
 
 ---
 
-## ⚪ FAZ 5: Test ve Yayın (Beklemede)
-- [ ] Güvenlik, Performans ve Mobil testleri
-- [ ] Hetzner VPS kurulumu ve DNS yapılandırması
-- [ ] Canlıya geçiş
+### ⚠️ TEKNİK RİSK RAPORU
+Projede "Test Altyapısı" şu an teknik borç (technical debt) olarak durmaktadır. Kodun doğruluğu `packages/api/verify_api.ts` ile manuel ispatlanmıştır, ancak CI/CD veya tam otomatik Unit test döngüsü monorepo karmaşası çözülene kadar aktif edilememiştir.

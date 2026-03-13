@@ -2,10 +2,11 @@ import cloudinary from '../config/cloudinary';
 import multer from 'multer';
 import { AppError } from '../middleware/errorHandler';
 
-// Multer: Disk yerine memory storage (RAM) kullanılır, bu sunucu diskini şişirmeyi engeller.
-// SKILL referansı: Max dosya boyutu 5MB, JPG/PNG/WebP destekleniyor.
+// Multer: Disk yerine memory storage (RAM) kullanılır
+const storage = multer.memoryStorage();
+
 export const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
@@ -19,10 +20,6 @@ export const upload = multer({
 
 /**
  * Görseli Cloudinary'ye yükler
- * @param buffer Multer tarafından alınan dosya buffer'ı
- * @param folder Cloudinary'deki hedef klasör (işletme ID'si olabilir)
- * @param publicId İsteğe bağlı, üzerine yazmak istenirse
- * @returns url ve publicId döner
  */
 export async function uploadImage(
   buffer: Buffer,
@@ -45,14 +42,12 @@ export async function uploadImage(
       }
     );
     
-    // Buffer'ı stream'e yazıp bitiriyoruz
     uploadStream.end(buffer);
   });
 }
 
 /**
  * Görseli Cloudinary'den siler
- * @param publicId Cloudinary'deki benzersiz kimliği
  */
 export async function deleteImage(publicId: string): Promise<void> {
   try {
