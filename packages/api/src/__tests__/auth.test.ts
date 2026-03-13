@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
 import app from '../app';
 import * as authService from '../services/auth.service';
+import { AppError } from '../middleware/errorHandler';
 
 describe('Auth API Integration Tests', () => {
   describe('POST /api/auth/login', () => {
@@ -15,11 +16,10 @@ describe('Auth API Integration Tests', () => {
     });
 
     it('should return 401/404 for invalid credentials', async () => {
-      // Mocking service to avoid DB connection issues during unit test
-      const loginMock = vi.spyOn(authService, 'loginUser').mockRejectedValue({
-        status: 401,
-        message: 'Geçersiz kullanıcı adı veya şifre'
-      });
+      // Mocking service to return a real AppError instance
+      const loginMock = vi.spyOn(authService, 'loginUser').mockRejectedValue(
+        new AppError(401, 'Geçersiz kullanıcı adı veya şifre')
+      );
 
       const res = await request(app)
         .post('/api/auth/login')

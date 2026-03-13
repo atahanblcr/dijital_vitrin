@@ -11,10 +11,5 @@ export default defineConfig({
       '@dijital-vitrin/database': path.resolve(__dirname, '../database'),
       '@dijital-vitrin/shared': path.resolve(__dirname, '../shared'),
     }
-  },
-  resolve: {
-    alias: {
-      'supertest': path.resolve(__dirname, '../../node_modules/supertest'),
-    }
   }
 });

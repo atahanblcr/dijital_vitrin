@@ -8,7 +8,6 @@ export default defineConfig({
     alias: {
       '@dijital-vitrin/database': path.resolve(__dirname, './packages/database'),
       '@dijital-vitrin/shared': path.resolve(__dirname, './packages/shared'),
-      'supertest': path.resolve(__dirname, './node_modules/supertest'),
     }
   },
 });
