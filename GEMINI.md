@@ -1153,4 +1153,13 @@ Geliştirme sürecinde netleştirilmesi gereken konular:
 > 
 > Bu kural atlanamaz ve her prompt/işlem sonrasında otomatik olarak işletilmelidir.
 
+---
+
+## 21. Otomatik Test Yazma ve Çalıştırma Kuralı (ZORUNLU)
+
+> ⚠️ **SİSTEM KURALI:** Geliştirme süreci ilerledikçe kod karmaşıklığını yönetmek ve geriye dönük (regression) hataları engellemek adına; bundan sonra geliştirilecek **test edilebilir her yeni özellik, API uç noktası veya UI mantığının hemen ardından ilgili testleri (Unit / Integration) yazılmalı ve çalıştırılmalıdır.**
+> 
+> - API tarafı için `Jest + Supertest` gibi araçlarla endpoint doğrulama testleri yazılacaktır.
+> - Bir özellik (feature) geliştirildiğinde, o özelliğe ait test senaryoları kodlanmadan bir sonraki göreve geçilmeyecektir.
+
 *Dijital Vitrin Platformu — Gizlidir*
