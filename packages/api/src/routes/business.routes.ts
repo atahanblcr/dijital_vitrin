@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as categoriesController from '../controllers/categories.controller';
 import * as productsController from '../controllers/products.controller';
 import * as blogController from '../controllers/blog.controller';
+import * as businessesController from '../controllers/businesses.controller';
 import { validate } from '../middleware/validate';
 import { authenticate, requireBusinessAdmin } from '../middleware/auth';
 import {
@@ -14,7 +15,6 @@ import {
 import {
   createProductSchema,
   updateProductSchema,
-  toggleProductSchema,
 } from '../validators/product.validator';
 import {
   createBlogSchema,
@@ -26,6 +26,10 @@ const router = Router();
 
 // Bütün işletme rotaları için kimlik ve rol (İşletme Admini veya Süper Admin) zorunludur
 router.use(authenticate, requireBusinessAdmin);
+
+// ─── İşletme Ayarları ───
+router.get('/me', businessesController.getMe);
+router.put('/settings', businessesController.updateSettings);
 
 // ─── Kategori Rotaları ───
 router.get('/categories', categoriesController.getCategories);
@@ -46,7 +50,8 @@ router.delete('/categories/:id/attributes/:attrId/options/:optId', categoriesCon
 // ─── Ürün Rotaları ───
 router.get('/products', productsController.getProducts);
 router.post('/products', validate(createProductSchema), productsController.createProduct);
-// Update ve diğer toggle rotaları eklenecek
+router.put('/products/sort-order', productsController.updateSortOrders);
+router.put('/products/:id', validate(updateProductSchema), productsController.updateProduct);
 router.delete('/products/:id', productsController.deleteProduct);
 
 // Görsel Yükleme (Multer middleware'i ile max 10 dosya)

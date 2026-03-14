@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
-import { Plus, Search, Image as ImageIcon, Trash2, Edit2, PackageX, TrendingUp } from 'lucide-react';
+import { Plus, Search, Image as ImageIcon, Trash2, Edit2, PackageX, TrendingUp, ListOrdered } from 'lucide-react';
 import { toast } from 'sonner';
 import ProductForm from './ProductForm';
+import ProductSort from './ProductSort';
 
 const ProductList = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+
   const fetchProducts = async () => {
+    setLoading(true);
     try {
       const res = await api.get('/business/products');
       setProducts(res.data.data);
@@ -39,7 +44,23 @@ const ProductList = () => {
   };
 
   if (isFormOpen) {
-    return <ProductForm onBack={() => setIsFormOpen(false)} onSuccess={() => setIsFormOpen(false)} />;
+    return (
+      <ProductForm 
+        initialData={editingProduct}
+        onBack={() => {
+          setIsFormOpen(false);
+          setEditingProduct(null);
+        }} 
+        onSuccess={() => {
+          setIsFormOpen(false);
+          setEditingProduct(null);
+        }} 
+      />
+    );
+  }
+
+  if (isSortOpen) {
+    return <ProductSort onBack={() => setIsSortOpen(false)} />;
   }
 
   const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -48,12 +69,23 @@ const ProductList = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold text-gray-800">Ürün Yönetimi</h2>
-        <button 
-          onClick={() => setIsFormOpen(true)}
-          className="bg-orange-500 text-white px-5 py-2.5 rounded-lg hover:bg-orange-600 flex items-center font-medium shadow-sm transition-colors"
-        >
-          <Plus className="w-5 h-5 mr-2" /> Yeni Ürün Ekle
-        </button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button 
+            onClick={() => setIsSortOpen(true)}
+            className="flex-1 sm:flex-none border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg hover:bg-gray-50 flex items-center justify-center font-medium transition-colors"
+          >
+            <ListOrdered className="w-5 h-5 mr-2 text-gray-400" /> Sıralama
+          </button>
+          <button 
+            onClick={() => {
+              setEditingProduct(null);
+              setIsFormOpen(true);
+            }}
+            className="flex-1 sm:flex-none bg-orange-500 text-white px-5 py-2.5 rounded-lg hover:bg-orange-600 flex items-center justify-center font-medium shadow-sm transition-colors"
+          >
+            <Plus className="w-5 h-5 mr-2" /> Yeni Ürün Ekle
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
@@ -132,6 +164,10 @@ const ProductList = () => {
                         <div className="flex justify-end gap-2">
                           <button 
                             title="Düzenle"
+                            onClick={() => {
+                              setEditingProduct(product);
+                              setIsFormOpen(true);
+                            }}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           >
                             <Edit2 className="w-4 h-4" />

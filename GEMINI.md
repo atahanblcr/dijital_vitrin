@@ -25,6 +25,10 @@
 17. [Geliştirme Yol Haritası](#17-geliştirme-yol-haritası)
 18. [Açık Kalan Kararlar](#18-açık-kalan-kararlar)
 19. [Açık Kalan Kararların Cevapları ve eksik kalanlar] (#19-açık-kalan-kararların-cevapları-ve-eksik-kalanlar)
+20. [20. Proje İlerleme ve Durum Raporlama Kuralı (ZORUNLU)] (#20-proje-ilerleme-ve-durum-raporlama-kuralı-(zorunlu))
+21. [21. Otomatik Test Yazma ve Çalıştırma Kuralı (ZORUNLU)] (#21-otomatik-test-yazma-ve-çalıştırma-kurlaı (zorunlu))
+22. [22. Otomatik Test Kuralları (ZORUNLU)] (#22-otomatik-test-kuralları-(zorunlu))
+23. [23. ZORUNLU KURAL (CRITICAL)] (#23-zorunlu-kural-(crıtıcal))
 
 ---
 
@@ -1065,86 +1069,9 @@ admin.dijitalvitrin.com        → Süper admin paneli
 
 ---
 
-## 17. Geliştirme Yol Haritası
+## 17. SİSTEM KURALLARI (CONSTITUTION)
 
-### Faz 1 — Temel Altyapı
-1. Monorepo kurulumu (npm workspaces)
-2. Veritabanı şeması (Prisma migration)
-3. Kimlik doğrulama sistemi (JWT + bcrypt + 2FA)
-4. Güvenlik katmanları (rate limiting, brute-force, CORS, header'lar)
-5. Süper admin paneli — işletme CRUD
-6. İşletme admin paneli — temel iskelet
-7. Görsel yükleme altyapısı (Cloudinary)
-8. Subdomain yönlendirme (Nginx wildcard + SSL)
-
-### Faz 2 — İçerik Sistemleri
-1. Kategori ve özellik yönetimi (tam CRUD + validasyon)
-2. Ürün yönetimi (çoklu görsel, sıralama, aktif/pasif)
-3. Blog sistemi (zengin metin editörü, taslak/yayın)
-4. Hata mesajları ve validasyon katmanı
-
-### Faz 3 — Vitrin Sitesi
-1. Next.js SSR altyapısı + subdomain routing
-2. Renk teması sistemi (CSS değişkenleri)
-3. Vitrin tasarımı + animasyon sistemi (Framer Motion)
-4. Kampanyalı ürünler carousel
-5. Ürün detay sayfası + lightbox galeri
-6. Kategori özellikler tablosu
-7. Blog sayfaları
-8. WhatsApp entegrasyonu
-
-### Faz 4 — SEO ve İstatistik
-1. Meta etiketleri, OG, JSON-LD yapılandırılmış veri
-2. `sitemap.xml` ve `robots.txt` otomatik üretimi
-3. İstatistik event kayıt sistemi + bot filtresi
-4. Günlük özet cron job
-5. Dashboard grafikleri (Recharts)
-6. Google My Business rehberi
-
-### Faz 5 — Test ve Yayın
-1. Güvenlik testleri
-2. Performans testleri (50 eşzamanlı işletme)
-3. Mobil uyumluluk testleri (iOS Safari, Android Chrome)
-4. VPS kurulum ve yapılandırma
-5. DNS ve wildcard SSL yapılandırması
-6. Canlıya geçiş ve izleme
-
----
-
-## 18. Açık Kalan Kararlar
-
-Geliştirme sürecinde netleştirilmesi gereken konular:
-
-| # | Konu | Durum |
-|---|---|---|
-| 1 | Taslak blog yazısı zamanlanmış yayın özelliği isteniyor mu? | ✅ Evet (dokümanda var) |
-| 2 | Ürün görseli boyut/kırpma otomatik mi, ham mı? | ✅ Ham — olduğu gibi |
-| 3 | Çoktan seçmeli özellikte çoklu seçim (birden fazla değer) isteniyor mu? | ❓ Netleştirilmeli |
-| 4 | Platform tanıtım anasayfası (`dijitalvitrin.com`) hazırlanacak mı? | ❓ Netleştirilmeli |
-| 5 | İşletme admini kendi şifresini değiştirebilmeli mi? | ❌ Hayır — sadece süper admin |
-| 6 | Redis cache Faz 1'de mi, sonra mı eklensin? | ❓ Netleştirilmeli |
-
----
-
-## 19. Açık Kalan Kararların Cevapları ve eksik kalanlar
-
-
-- Varyasyon ve Çoklu Seçim: Açık kararlar (Madde 18.3) bölümünde belirttiğiniz konu çok kritik. Eğer çoklu seçime izin verilmezse, bir butik "Mavi Tişört" için S, M, L bedenlerini tek bir üründe gösteremez; her beden için ayrı ürün açmak zorunda kalır. Çoktan seçmeli özelliklerde "Çoklu Seçim (Multiple-Choice)" desteği kesinlikle olmalı.
-
-
-- Yasal Sayfalar (KVKK & Gizlilik): Platform üzerinden doğrudan ödeme alınmasa da, ziyaretçilerden WhatsApp üzerinden iletişim kurulması sebebiyle veri işleniyor demektir. Vitrin sitesinin footer bölümüne süper admin tarafından merkezi olarak yönetilen (veya işletmenin kendi girebileceği) "Gizlilik Politikası" ve "Kullanım Koşulları" gibi statik sayfalar için bir alan ayrılmalı.
-
-- Çerez (Cookie) Onay Banner'ı: Analitik sistemi için IP adreslerini hash'leyerek takip ediyorsunuz (KVKK açısından harika bir hamle), ancak tarayıcıda oturum yönetimi veya gelecekteki potansiyel takip araçları için yasal olarak ekranda ufak bir çerez aydınlatma uyarısı (Cookie Consent) çıkması faydalı olacaktır.
-
-
-
-
-
-*Bu doküman projenin yaşayan referans belgesidir. Her karar alındığında güncellenir.*
-
----
-
-## 20. Proje İlerleme ve Durum Raporlama Kuralı (ZORUNLU)
+### 20. Proje İlerleme ve Durum Raporlama Kuralı (ZORUNLU)
 
 > ⚠️ **SİSTEM KURALI:** Yapay zeka, kendisine verilen **her görev veya iş paketi tamamlandığında**, proje ana dizinindeki `active_context` ve `progress.md` dosyalarını zorunlu olarak güncellemekle yükümlüdür.
 > 
@@ -1153,16 +1080,18 @@ Geliştirme sürecinde netleştirilmesi gereken konular:
 > 
 > Bu kural atlanamaz ve her prompt/işlem sonrasında otomatik olarak işletilmelidir.
 
----
-
-## 21. Otomatik Test Yazma ve Çalıştırma Kuralı (ZORUNLU)
+### 21. Otomatik Test Yazma ve Çalıştırma Kuralı (ZORUNLU)
 
 > ⚠️ **SİSTEM KURALI:** Geliştirme süreci ilerledikçe kod karmaşıklığını yönetmek ve geriye dönük (regression) hataları engellemek adına; bundan sonra geliştirilecek **test edilebilir her yeni özellik, API uç noktası veya UI mantığının hemen ardından ilgili testleri (Unit / Integration) yazılmalı ve çalıştırılmalıdır.**
 > 
 > - API tarafı için `Jest + Supertest` gibi araçlarla endpoint doğrulama testleri yazılacaktır.
 > - Bir özellik (feature) geliştirildiğinde, o özelliğe ait test senaryoları kodlanmadan bir sonraki göreve geçilmeyecektir.
 
-## 22. Otomatik Test Kuralları (ZORUNLU)
+### 22. Otomatik Test Kuralları (ZORUNLU)
 Test yazarken, test konfigürasyonlarını düzenlerken veya test hatalarını çözerken DAİMA `.gemini/skills/testing/SKILL.md` dosyasındaki kurallara uyulacaktır. Test altyapısı (Vitest) monorepo mimarisine göre kurulmuştur, yapay zeka bu ayarları "hack" yöntemlerle (alias ekleyerek veya alt paketlere kütüphane kurarak) aşmaya çalışamaz.
 
+### 23. ZORUNLU KURAL (CRITICAL)
+> ⚠️ **KRİTİK KURAL:** Frontend bileşenleri yazarken ASLA sahte (mock) veri ve işlevsiz buton bırakılamaz. Bir buton tasarlanıyorsa, onun onClick işlevi, API rotası ve Prisma veritabanı bağlantısı ZORUNLU olarak aynı anda yazılacaktır. Kullanıcı arayüzü çizip arka planı boş bırakmak kesinlikle yasaktır.
+
 *Dijital Vitrin Platformu — Gizlidir*
+

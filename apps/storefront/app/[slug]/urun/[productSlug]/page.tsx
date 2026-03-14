@@ -3,6 +3,7 @@ import { getStorefrontData, getStorefrontProduct } from '../../../../lib/api';
 import ProductGallery from '../../../../components/product/ProductGallery';
 import AttributeTable from '../../../../components/product/AttributeTable';
 import ProductJsonLd from '../../../../components/product/ProductJsonLd';
+import MobileStickyBar from '../../../../components/product/MobileStickyBar';
 import { generateBaseMetadata } from '../../../../components/seo/generateMetadata';
 import { Metadata } from 'next';
 
@@ -122,6 +123,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+      <MobileStickyBar productName={product.name} waUrl={waUrl} inStock={product.in_stock} />
     </>
   );
 }

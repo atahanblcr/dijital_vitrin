@@ -1,26 +1,19 @@
-# CURRENT PHASE: Faz 5 - Test ve Yayın (Devam Ediyor)
-# CURRENT TASK: Sistem Stabilitesi ve Yayına Hazırlık
+# Active Context - 15 Mart 2026
 
-## 🟢 YAPILANLAR / DOĞRULANANLAR (SUCCESS):
-- **Test ve SEO Altyapısı (Faz 4):**
-  - Next.js üzerinde dinamik `sitemap.xml` ve `robots.txt` (subdomain uyumlu) tamamlandı.
-  - İşletme ve Süper Admin panellerine Recharts tabanlı interaktif istatistik grafikleri eklendi.
-  - Google My Business rehberi admin paneline entegre edildi.
-- **Güvenlik ve Performans (Faz 5):**
-  - API güvenlik katmanları (Helmet, CORS, Rate Limit, Payload Limit) test edildi ve doğrulandı.
-  - Eşzamanlı 50 istek ile yapılan yük testi başarıyla tamamlandı.
-- **Sistem Onarımı ve Stabilitesi:**
-  - Boşalmış olan `tsconfig.json`, `index.html` ve `postcss.config.js` dosyaları tüm uygulamalar için restore edildi.
-  - Prisma v7/v5 versiyon uyumsuzluğu giderildi, veritabanı bağlantısı `atahanblcr` kullanıcısına göre optimize edildi.
-  - Seed scripti yenilendi; `superadmin` ve `demo_admin` kullanıcıları doğru hashleme ile oluşturuldu.
-  - Storefront (Vitrin) sitesinin ihtiyaç duyduğu API uç noktaları (`getBusinessBySlug` vb.) geliştirildi.
+## Son Yapılan İşler
+- **GEMINI.md & Progress Refactor:** Tarihsel gelişim `progress.md`'ye taşındı, `GEMINI.md` anayasa kuralları ile sadeleştirildi.
+- **Rule 23 Uygulaması:** Süper Admin ve İşletme Admin panellerindeki tüm "mock" veriler ve işlevsiz butonlar gerçek API + DB bağlantılarıyla değiştirildi.
+- **Business Management:** Süper admin için işletme ekleme (admin hesabı ile birlikte), düzenleme, silme ve aktif/pasif toggle özellikleri backend ve frontend tarafında tam işlevsel hale getirildi.
+- **Product Management:** İşletme admini için ürün düzenleme ve "Sürükle-Bırak" (Dnd-kit) ile ürün sıralama özelliği eklendi.
+- **Storefront UI/UX:** Ürün kartlarına animasyonlar (Framer Motion) ve mobil cihazlar için "Sticky Bottom Bar" eklendi. Boş olan `ProductCard` ve `ProductGrid` bileşenleri dolduruldu.
 
-## 🔴 BECERİLEMEYEN / EKSİK KALANLAR:
-- **Görsel Tasarım:** Vitrin sitesi tasarımı şu an temel seviyede ("basit" olarak nitelendirildi). CSS ve animasyon tarafında daha fazla "enerjik" dokunuş gerekiyor.
-- **İşletme Yönetimi Mantığı:** Süper Admin panelindeki "İşletme Ekleme/Düzenleme" fonksiyonları UI bazında hazır ancak API tarafında tam CRUD (kayıt/güncelleme) mantığı detaylandırılmalı.
-- **Ortam Kararsızlığı:** Monorepo içindeki paketlerin (ts-node, ts-node-dev vb.) global/local çakışmaları manuel müdahale ile çözüldü, ancak bu yapı hala hassas.
+## Mevcut Durum
+- Proje artık "mock" veri içermiyor, tüm butonlar ve formlar backend ile konuşuyor.
+- `GEMINI.md` içindeki KRİTİK KURAL (Rule 23) tüm geliştirmelere uygulandı.
+- Tüm monorepo modülleri (api, storefront, admin-panel, super-admin) birbiriyle entegre.
 
-## NEXT STEPS (Sıradaki Adımlar):
-- **Canlıya Geçiş (Deployment):** Hetzner VPS kurulumu, Nginx wildcard yapılandırması ve SSL (Certbot) aktivasyonu.
-- **Tasarım İyileştirmesi:** Vitrin sitesinin UI/UX kalitesinin artırılması.
-- **İşletme Kayıt Akışı:** Süper admin üzerinden yeni işletme açma sürecinin uçtan uca tamamlanması.
+## Bir Sonraki Adımlar
+- **Blog Sistemi Detayı:** Blog yazılarının listelenmesi ve detay sayfasındaki UI/UX cilası.
+- **İstatistik Dashboard:** Recharts ile hazırlanan grafiklerin gerçek verilerle (Analytics Events) beslenmesi.
+- **Mobil Testler:** Sticky bar ve grid yapısının farklı mobil cihazlarda simüle edilmesi.
+- **Deploy Hazırlığı:** Hetzner VPS kurulumu için gerekli scriptlerin (Nginx, PM2) son kontrolleri.

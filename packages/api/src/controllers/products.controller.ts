@@ -140,6 +140,93 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const businessId = req.user?.business_id;
+    const { id } = req.params;
+    const { name, category_id, short_desc, long_desc, is_campaign, in_stock, is_active, attributes } = req.body;
+
+    const existingProduct = await prisma.product.findFirst({ where: { id, business_id: businessId } });
+    if (!existingProduct) throw new AppError(404, 'Ürün bulunamadı');
+
+    // Kategori kontrolü
+    const category = await prisma.category.findFirst({ where: { id: category_id, business_id: businessId } });
+    if (!category) throw new AppError(404, 'Kategori bulunamadı');
+
+    // Eğer isim değiştiyse slug'ı güncellemiyoruz (SEO için tehlikeli olabilir, opsiyonel bırakılabilir)
+
+    // Ürünü güncelle
+    const product = await prisma.product.update({
+      where: { id },
+      data: {
+        category_id,
+        name,
+        short_desc,
+        long_desc,
+        is_campaign,
+        in_stock,
+        is_active,
+      }
+    });
+
+    // Özellikleri güncelle (Önce siliyoruz, sonra yeniden ekliyoruz - En temiz yöntem)
+    await prisma.productAttributeValue.deleteMany({ where: { product_id: id } });
+    await prisma.productAttributeMultiValue.deleteMany({ where: { product_id: id } });
+
+    if (attributes && attributes.length > 0) {
+      for (const attr of attributes) {
+        const defAttr = await prisma.categoryAttribute.findUnique({ where: { id: attr.attribute_id } });
+        if (!defAttr) continue;
+
+        if (defAttr.type === 'select' && defAttr.is_multiple && attr.multi_option_ids) {
+          const multiData = attr.multi_option_ids.map((optId: string) => ({
+            product_id: product.id,
+            attribute_id: attr.attribute_id,
+            option_id: optId,
+          }));
+          await prisma.productAttributeMultiValue.createMany({ data: multiData });
+        } else {
+          await prisma.productAttributeValue.create({
+            data: {
+              product_id: product.id,
+              attribute_id: attr.attribute_id,
+              value_text: attr.value_text,
+              value_number: attr.value_number,
+              value_option_id: attr.value_option_id,
+            }
+          });
+        }
+      }
+    }
+
+    res.json({ data: product });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateSortOrders = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const businessId = req.user?.business_id;
+    const { orders } = req.body; // Array of { id, sort_order }
+
+    if (!orders || !Array.isArray(orders)) throw new AppError(400, 'Geçersiz veri formatı');
+
+    await prisma.$transaction(
+      orders.map(item => 
+        prisma.product.update({
+          where: { id: item.id, business_id: businessId },
+          data: { sort_order: item.sort_order }
+        })
+      )
+    );
+
+    res.json({ data: { message: 'Sıralama başarıyla kaydedildi' } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // ─── GÖRSEL YÜKLEME ──────────────────────────────────────────────
 
 export const uploadProductImages = async (req: Request, res: Response, next: NextFunction) => {
