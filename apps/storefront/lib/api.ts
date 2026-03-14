@@ -22,12 +22,13 @@ export async function getStorefrontProducts(slug: string) {
     throw new Error('Failed to fetch products');
   }
   
-  return res.json();
+  const json = await res.json();
+  return json.data;
 }
 
 export async function getStorefrontProduct(slug: string, productSlug: string) {
   const res = await fetch(`${API_URL}/api/storefront/${slug}/products/${productSlug}`, {
-    next: { revalidate: 60, tags: ['product', slug, productSlug] },
+    cache: 'no-store', // Next.js 15: Önbelleği devre dışı bırak
   });
   
   if (!res.ok) {
@@ -35,7 +36,8 @@ export async function getStorefrontProduct(slug: string, productSlug: string) {
     throw new Error('Failed to fetch product details');
   }
   
-  return res.json();
+  const json = await res.json();
+  return json.data;
 }
 
 export async function getStorefrontBlogs(slug: string) {
@@ -47,7 +49,8 @@ export async function getStorefrontBlogs(slug: string) {
     throw new Error('Failed to fetch blogs');
   }
   
-  return res.json();
+  const json = await res.json();
+  return json.data;
 }
 
 export async function getStorefrontBlog(slug: string, blogSlug: string) {
@@ -60,7 +63,8 @@ export async function getStorefrontBlog(slug: string, blogSlug: string) {
     throw new Error('Failed to fetch blog post');
   }
   
-  return res.json();
+  const json = await res.json();
+  return json.data;
 }
 
 // Track an analytics event

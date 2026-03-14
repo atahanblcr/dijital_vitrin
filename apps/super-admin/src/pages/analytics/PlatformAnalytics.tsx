@@ -111,7 +111,7 @@ const PlatformAnalytics = () => {
           İşletme Bazlı Trafik Dağılımı
         </h3>
         <div className="h-[400px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <BarChart data={businessData.slice(0, 10)}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
               <XAxis 

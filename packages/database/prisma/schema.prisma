@@ -150,6 +150,7 @@ model CategoryAttribute {
   category    Category                @relation(fields: [category_id], references: [id], onDelete: Cascade)
   options     AttributeOption[]
   values      ProductAttributeValue[]
+  multi_values ProductAttributeMultiValue[]
 
   @@index([category_id])
 }
@@ -162,6 +163,7 @@ model AttributeOption {
 
   attribute   CategoryAttribute       @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
   values      ProductAttributeValue[]
+  multi_values ProductAttributeMultiValue[]
 
   @@index([attribute_id])
 }
@@ -185,6 +187,7 @@ model Product {
   category    Category                @relation(fields: [category_id], references: [id])
   images      ProductImage[]
   attr_values ProductAttributeValue[]
+  attr_multi_values ProductAttributeMultiValue[]
   analytics   AnalyticsEvent[]
 
   @@unique([business_id, slug])
@@ -215,6 +218,10 @@ model ProductAttributeMultiValue {
   product_id   String
   attribute_id String
   option_id    String
+
+  product         Product           @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  attribute       CategoryAttribute @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
+  option          AttributeOption   @relation(fields: [option_id], references: [id], onDelete: Cascade)
 
   @@unique([product_id, attribute_id, option_id])
   @@index([product_id, attribute_id])
@@ -288,4 +295,13 @@ model AnalyticsDaily {
 
   @@unique([business_id, product_id, date])
   @@index([business_id, date])
+}
+
+model SystemSettings {
+  id                    String   @id @default("singleton")
+  default_max_images    Int      @default(7)
+  max_file_size_mb      Int      @default(5)
+  global_announcement   String?  @db.Text
+  maintenance_mode      Boolean  @default(false)
+  updated_at            DateTime @updatedAt
 }

@@ -6,7 +6,7 @@ export const createBusinessSchema = z.object({
   sector: z.enum(['elektronik', 'butik', 'aksesuar', 'el_isi', 'oto_galeri']),
   whatsapp: z.string().min(10, 'WhatsApp numarası geçerli bir formatta olmalıdır'),
   subscription_plan: z.enum(['monthly', 'yearly']),
-  subscription_end: z.string().datetime().or(z.date()),
+  subscription_end: z.coerce.date(),
   // Admin Hesabı
   username: z.string().min(3, 'Kullanıcı adı en az 3 karakter olmalıdır').max(50),
   password: z.string().min(8, 'Şifre en az 8 karakter olmalıdır').regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, 'Şifre en az bir büyük harf, bir küçük harf ve bir rakam içermelidir'),
@@ -17,7 +17,7 @@ export const updateBusinessSchema = z.object({
   sector: z.enum(['elektronik', 'butik', 'aksesuar', 'el_isi', 'oto_galeri']).optional(),
   whatsapp: z.string().min(10).optional(),
   subscription_plan: z.enum(['monthly', 'yearly']).optional(),
-  subscription_end: z.string().datetime().or(z.date()).optional(),
+  subscription_end: z.coerce.date().optional(),
   is_active: z.boolean().optional(),
   auto_deactivate: z.boolean().optional(),
 });

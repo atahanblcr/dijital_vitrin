@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
-import { Plus, Search, Store, ExternalLink, Calendar, Trash2, Edit2, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Plus, Search, Store, ExternalLink, Calendar, Trash2, Edit2, ShieldCheck, ShieldAlert, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
@@ -43,7 +43,14 @@ const BusinessList = () => {
       fetchBusinesses();
     } catch (error: any) {
       const msg = error.response?.data?.error || 'Bir hata oluştu';
-      toast.error(msg);
+      const details = error.response?.data?.details;
+      
+      if (details) {
+        console.table(details);
+        toast.error(`Hata: ${details[0].field} - ${details[0].message}`);
+      } else {
+        toast.error(msg);
+      }
       throw error;
     }
   };
@@ -67,6 +74,21 @@ const BusinessList = () => {
       setBusinesses(prev => prev.map(b => b.id === id ? { ...b, is_active: !b.is_active } : b));
     } catch (error) {
       toast.error('Güncellenemedi');
+    }
+  };
+
+  const handleImpersonate = async (id: string) => {
+    try {
+      const res = await api.post(`/admin/businesses/${id}/impersonate`);
+      const { token } = res.data.data;
+      
+      // İşletme panelini yeni sekmede aç (Senin ortamında İşletme Paneli 3001 portunda çalışıyor)
+      const win = window.open(`http://localhost:3001/login?token=${token}`, '_blank');
+      if (win) win.focus();
+      
+      toast.success('İşletme paneline yönlendiriliyorsunuz...');
+    } catch (error) {
+      toast.error('Giriş başarısız');
     }
   };
 
@@ -210,6 +232,13 @@ const BusinessList = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => handleImpersonate(biz.id)}
+                          className="p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all" 
+                          title="İşletme Paneline Gir"
+                        >
+                          <LogIn className="w-5 h-5" />
+                        </button>
                         <button 
                           onClick={() => {
                             setEditingBusiness(biz);

@@ -1,19 +1,22 @@
-# Active Context - 15 Mart 2026
+# Active Context - 15 Mart 2026 (GÜNCELLEME)
 
 ## Son Yapılan İşler
-- **GEMINI.md & Progress Refactor:** Tarihsel gelişim `progress.md`'ye taşındı, `GEMINI.md` anayasa kuralları ile sadeleştirildi.
-- **Rule 23 Uygulaması:** Süper Admin ve İşletme Admin panellerindeki tüm "mock" veriler ve işlevsiz butonlar gerçek API + DB bağlantılarıyla değiştirildi.
-- **Business Management:** Süper admin için işletme ekleme (admin hesabı ile birlikte), düzenleme, silme ve aktif/pasif toggle özellikleri backend ve frontend tarafında tam işlevsel hale getirildi.
-- **Product Management:** İşletme admini için ürün düzenleme ve "Sürükle-Bırak" (Dnd-kit) ile ürün sıralama özelliği eklendi.
-- **Storefront UI/UX:** Ürün kartlarına animasyonlar (Framer Motion) ve mobil cihazlar için "Sticky Bottom Bar" eklendi. Boş olan `ProductCard` ve `ProductGrid` bileşenleri dolduruldu.
+- **Multi-select Attribute Fix:** Ürün özelliklerinde "Çoklu Seçim" (Renk vb.) verilerinin kaydedilmesi ve güncellenmesi sırasında yaşanan veri kaybı ve görüntüleme sorunları giderildi.
+- **Prisma Schema Update:** `ProductAttributeMultiValue` modeli için eksik olan ters ilişkiler (back-relations) eklendi ve veritabanı senkronize edildi.
+- **Next.js 15 Compatibility:** Storefront tarafında `params` objesinin `await` edilmesi ve API isteklerinde `cache: 'no-store'` kullanılarak güncel veri garantisi sağlandı.
+- **Attribute Options Management:** Kategoriler sayfasında özelliklere seçenek (Kırmızı, Mavi vb.) eklemeyi sağlayan `OptionEditor` bileşeni ve API entegrasyonu tamamlandı.
+- **Middleware & Static Files:** Middleware'in `.test` uzantılı yerel domainleri ve `.png/.svg` gibi statik dosyaları (favicon, og-image) doğru işlemesi sağlandı.
+
+## Tespit Edilen Olası Eksiklikler & Yapılması Gerekenler
+1. **Vitrin Blog Sayfası:** Backend hazır olmasına rağmen, vitrin tarafında blog yazılarının listelendiği `/blog` sayfası ve ana sayfadaki "Blogdan Son Yazılar" bölümü henüz görsel olarak tasarlanmadı.
+2. **Global Duyuru Gösterimi:** Süper Admin'den girilen "Global Duyuru" metninin işletme panellerinde bir banner olarak gösterilmesi gerekiyor.
+3. **Analytics Event Tracking:** `trackEvent` fonksiyonu hazır ancak vitrin üzerindeki buton tıklamaları ve sayfa görüntülenmeleri henüz gerçek zamanlı olarak bu fonksiyona bağlanmadı.
+4. **Resim Sıralama (Drag & Drop):** Ürün resimlerinin yüklendikten sonra sürükle-bırak ile sırasının değiştirilmesi özelliği frontend tarafında eklenmeli.
+5. **Favicon & Logo Fallback:** İşletme logosu yüklenmemişse vitrin sitesinde şık bir placeholder (işletme isminin baş harfi gibi) gösterilmeli.
 
 ## Mevcut Durum
-- Proje artık "mock" veri içermiyor, tüm butonlar ve formlar backend ile konuşuyor.
-- `GEMINI.md` içindeki KRİTİK KURAL (Rule 23) tüm geliştirmelere uygulandı.
-- Tüm monorepo modülleri (api, storefront, admin-panel, super-admin) birbiriyle entegre.
+- Tüm admin panelleri ve vitrin motoru gerçek verilerle çalışıyor.
+- Çekirdek SaaS döngüsü (İşletme ekle -> Ürün gir -> Vitrin izle) kusursuz.
 
-## Bir Sonraki Adımlar
-- **Blog Sistemi Detayı:** Blog yazılarının listelenmesi ve detay sayfasındaki UI/UX cilası.
-- **İstatistik Dashboard:** Recharts ile hazırlanan grafiklerin gerçek verilerle (Analytics Events) beslenmesi.
-- **Mobil Testler:** Sticky bar ve grid yapısının farklı mobil cihazlarda simüle edilmesi.
-- **Deploy Hazırlığı:** Hetzner VPS kurulumu için gerekli scriptlerin (Nginx, PM2) son kontrolleri.
+## Bir Sonraki Adım
+- Blog vitrin sayfalarının tasarımı ve analytics event'lerinin bağlanması.

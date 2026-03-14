@@ -99,39 +99,51 @@ const AttributeFields: React.FC<AttributeFieldsProps> = ({ categoryId, values, o
             )}
 
             {attr.type === 'select' && !attr.is_multiple && (
-              <select
-                value={valObj.value_option_id || ''}
-                onChange={(e) => handleChange(attr.id, e.target.value, 'select', false)}
-                className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 ${hasError ? 'border-red-500' : 'border-gray-300'}`}
-              >
-                <option value="">Seçiniz...</option>
-                {attr.options.map(opt => (
-                  <option key={opt.id} value={opt.id}>{opt.value}</option>
-                ))}
-              </select>
+              attr.options && attr.options.length > 0 ? (
+                <select
+                  value={valObj.value_option_id || ''}
+                  onChange={(e) => handleChange(attr.id, e.target.value, 'select', false)}
+                  className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 ${hasError ? 'border-red-500' : 'border-gray-300'}`}
+                >
+                  <option value="">Seçiniz...</option>
+                  {attr.options.map(opt => (
+                    <option key={opt.id} value={opt.id}>{opt.value}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="text-xs text-red-500 bg-red-50 p-2 rounded-lg border border-red-100">
+                  ⚠️ Bu özellik için seçenek eklenmemiş. Kategori ayarlarından seçenek ekleyin.
+                </div>
+              )
             )}
 
             {attr.type === 'select' && attr.is_multiple && (
-              <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg bg-gray-50 min-h-[42px]">
-                {attr.options.map(opt => {
-                  const isChecked = (valObj.multi_option_ids || []).includes(opt.id);
-                  return (
-                    <label key={opt.id} className={`flex items-center gap-1.5 px-2 py-1 rounded border text-xs cursor-pointer transition-colors ${isChecked ? 'bg-orange-100 border-orange-300 text-orange-800' : 'bg-white border-gray-300 text-gray-700'}`}>
-                      <input 
-                        type="checkbox" 
-                        className="hidden"
-                        checked={isChecked}
-                        onChange={(e) => {
-                          const currentArr = valObj.multi_option_ids || [];
-                          const newArr = e.target.checked ? [...currentArr, opt.id] : currentArr.filter((id: string) => id !== opt.id);
-                          handleChange(attr.id, newArr, 'select', true);
-                        }} 
-                      />
-                      {opt.value}
-                    </label>
-                  );
-                })}
-              </div>
+              attr.options && attr.options.length > 0 ? (
+                <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg bg-gray-50 min-h-[42px]">
+                  {attr.options.map(opt => {
+                    const isChecked = (valObj.multi_option_ids || []).includes(opt.id);
+                    return (
+                      <label key={opt.id} className={`flex items-center gap-1.5 px-2 py-1 rounded border text-xs cursor-pointer transition-colors ${isChecked ? 'bg-orange-100 border-orange-300 text-orange-800' : 'bg-white border-gray-300 text-gray-700'}`}>
+                        <input 
+                          type="checkbox" 
+                          className="hidden"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const currentArr = valObj.multi_option_ids || [];
+                            const newArr = e.target.checked ? [...currentArr, opt.id] : currentArr.filter((id: string) => id !== opt.id);
+                            handleChange(attr.id, newArr, 'select', true);
+                          }} 
+                        />
+                        {opt.value}
+                      </label>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-xs text-red-500 bg-red-50 p-2 rounded-lg border border-red-100">
+                  ⚠️ Bu özellik için seçenek eklenmemiş. Kategori ayarlarından seçenek ekleyin.
+                </div>
+              )
             )}
 
             {hasError && <p className="text-xs text-red-600">{hasError.message}</p>}

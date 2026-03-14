@@ -10,8 +10,10 @@ const BlogList = () => {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingBlog, setEditingBlog] = useState<any>(null);
 
   const fetchBlogs = async () => {
+    setLoading(true);
     try {
       const res = await api.get('/business/blog');
       setBlogs(res.data.data);
@@ -38,7 +40,19 @@ const BlogList = () => {
   };
 
   if (isEditorOpen) {
-    return <BlogEditor onBack={() => setIsEditorOpen(false)} onSuccess={() => setIsEditorOpen(false)} />;
+    return (
+      <BlogEditor 
+        initialData={editingBlog}
+        onBack={() => {
+          setIsEditorOpen(false);
+          setEditingBlog(null);
+        }} 
+        onSuccess={() => {
+          setIsEditorOpen(false);
+          setEditingBlog(null);
+        }} 
+      />
+    );
   }
 
   return (
@@ -46,7 +60,10 @@ const BlogList = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Blog & Duyuru Yönetimi</h2>
         <button 
-          onClick={() => setIsEditorOpen(true)}
+          onClick={() => {
+            setEditingBlog(null);
+            setIsEditorOpen(true);
+          }}
           className="bg-orange-500 text-white px-5 py-2.5 rounded-lg hover:bg-orange-600 flex items-center font-medium shadow-sm transition-colors"
         >
           <Plus className="w-5 h-5 mr-2" /> Yeni Yazı Ekle
@@ -101,7 +118,14 @@ const BlogList = () => {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
-                          <button title="Düzenle" className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
+                          <button 
+                            onClick={() => {
+                              setEditingBlog(blog);
+                              setIsEditorOpen(true);
+                            }}
+                            title="Düzenle" 
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                          >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button 

@@ -152,7 +152,7 @@ const Analytics = () => {
         </div>
         
         <div className="h-[350px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
               <XAxis 
@@ -229,9 +229,8 @@ const Analytics = () => {
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <h3 className="font-bold text-gray-800 mb-6">Cihaz Dağılımı</h3>
           <div className="h-[250px] w-full flex items-center justify-center relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+              <PieChart>                <Pie
                   data={[
                     { name: 'Mobil', value: 75, color: '#f97316' },
                     { name: 'Masaüstü', value: 25, color: '#3b82f6' }

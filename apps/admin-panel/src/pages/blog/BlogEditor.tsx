@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -12,9 +12,9 @@ import { toast } from 'sonner';
 const blogSchema = z.object({
   title: z.string().min(1, 'Başlık zorunludur').max(150, 'Max 150 karakter'),
   content: z.string().min(1, 'İçerik boş bırakılamaz'),
-  meta_description: z.string().max(160, 'Max 160 karakter').optional(),
+  meta_description: z.string().max(160, 'Max 160 karakter').optional().nullable(),
   status: z.enum(['draft', 'published']),
-  published_at: z.string().optional() // yyyy-MM-ddThh:mm form formatı
+  published_at: z.string().optional().nullable() // yyyy-MM-ddThh:mm form formatı
 });
 
 type BlogForm = z.infer<typeof blogSchema>;
@@ -45,15 +45,21 @@ const MenuBar = ({ editor }: { editor: any }) => {
   );
 };
 
-const BlogEditor = ({ onBack, onSuccess }: { onBack: () => void, onSuccess: () => void }) => {
+const BlogEditor = ({ onBack, onSuccess, initialData }: { onBack: () => void, onSuccess: () => void, initialData?: any }) => {
   const { register, handleSubmit, control, setValue, watch, formState: { errors, isSubmitting } } = useForm<BlogForm>({
     resolver: zodResolver(blogSchema),
-    defaultValues: { status: 'draft', content: '' }
+    defaultValues: initialData ? {
+      title: initialData.title,
+      content: initialData.content,
+      meta_description: initialData.meta_description,
+      status: initialData.status,
+      published_at: initialData.published_at ? new Date(initialData.published_at).toISOString().substring(0, 16) : null
+    } : { status: 'draft', content: '' }
   });
 
   const editor = useEditor({
     extensions: [StarterKit, Link.configure({ openOnClick: false })],
-    content: '',
+    content: initialData?.content || '',
     onUpdate: ({ editor }) => {
       setValue('content', editor.getHTML(), { shouldValidate: true });
     },
@@ -71,8 +77,13 @@ const BlogEditor = ({ onBack, onSuccess }: { onBack: () => void, onSuccess: () =
         published_at: data.published_at ? new Date(data.published_at).toISOString() : null
       };
 
-      await api.post('/business/blog', payload);
-      toast.success(data.status === 'published' ? 'Yazı yayınlandı' : 'Taslak olarak kaydedildi');
+      if (initialData) {
+        await api.put(`/business/blog/${initialData.id}`, payload);
+        toast.success('Yazı güncellendi');
+      } else {
+        await api.post('/business/blog', payload);
+        toast.success(data.status === 'published' ? 'Yazı yayınlandı' : 'Taslak olarak kaydedildi');
+      }
       onSuccess();
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Kayıt başarısız');
@@ -85,7 +96,7 @@ const BlogEditor = ({ onBack, onSuccess }: { onBack: () => void, onSuccess: () =
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <button onClick={onBack} className="text-gray-500 hover:text-gray-800">← Listeye Dön</button>
-        <h2 className="text-2xl font-bold text-gray-800">Yeni Blog / Duyuru</h2>
+        <h2 className="text-2xl font-bold text-gray-800">{initialData ? 'Yazıyı Düzenle' : 'Yeni Blog / Duyuru'}</h2>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-6">

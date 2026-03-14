@@ -1,8 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { useAuthStore } from '../../store/authStore';
+import { api } from '../../lib/api';
 
 const AdminLayout = () => {
+  const { business, setBusiness, isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated && !business) {
+      api.get('/business/me')
+        .then(res => setBusiness(res.data.data))
+        .catch(err => console.error('İşletme verisi yüklenemedi:', err));
+    }
+  }, [isAuthenticated, business, setBusiness]);
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar - Açık Renk (SKILL Referansı) */}

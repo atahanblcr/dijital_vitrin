@@ -26,13 +26,18 @@ export async function uploadImage(
   folder: string,
   publicId?: string
 ): Promise<{ url: string; publicId: string }> {
+  // Config kontrolü
+  if (!cloudinary.config().cloud_name || cloudinary.config().cloud_name === 'demo') {
+    throw new AppError(500, 'Cloudinary yapılandırması eksik veya hatalı (.env dosyasını kontrol edin)');
+  }
+
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       { folder, public_id: publicId, resource_type: 'image' },
       (error, result) => {
         if (error) {
-          console.error('Cloudinary Upload Error:', error);
-          reject(new AppError(500, 'Görsel yüklenirken bir hata oluştu'));
+          console.error('Detailed Cloudinary Error:', error);
+          reject(new AppError(500, `Cloudinary Hatası: ${error.message}`));
         } else {
           resolve({
             url: result!.secure_url,
@@ -41,7 +46,7 @@ export async function uploadImage(
         }
       }
     );
-    
+
     uploadStream.end(buffer);
   });
 }

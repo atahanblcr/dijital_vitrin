@@ -13,8 +13,11 @@ interface LayoutProps {
   params: { slug: string };
 }
 
-export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
-  const data = await getStorefrontData(params.slug);
+export async function generateMetadata({ params }: any): Promise<Metadata> {
+  // Next.js 15 Fix
+  const resolvedParams = await params;
+  const { slug } = resolvedParams;
+  const data = await getStorefrontData(slug);
   
   if (!data?.business) {
     return { title: 'Bulunamadı' };
@@ -44,8 +47,11 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
   };
 }
 
-export default async function StorefrontLayout({ children, params }: LayoutProps) {
-  const data = await getStorefrontData(params.slug);
+export default async function StorefrontLayout({ children, params }: any) {
+  // Next.js 15 Fix
+  const resolvedParams = await params;
+  const { slug } = resolvedParams;
+  const data = await getStorefrontData(slug);
 
   if (!data?.business) {
     notFound();
@@ -55,7 +61,6 @@ export default async function StorefrontLayout({ children, params }: LayoutProps
 
   // Pasif işletme kontrolü
   if (!business.is_active) {
-    // API should ideally handle this or we handle it here
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50 p-4 text-center">
         <div className="rounded-xl bg-white p-8 shadow-lg max-w-md w-full">

@@ -37,7 +37,7 @@ export default function CampaignCarousel({ products, businessSlug }: CampaignCar
           return (
             <Link 
               key={product.id} 
-              href={`/${businessSlug}/urun/${product.slug}`}
+              href={`/urun/${product.slug}`}
               className="snap-start shrink-0 w-64 md:w-80"
             >
               <motion.div 

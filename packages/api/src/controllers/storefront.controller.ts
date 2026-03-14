@@ -69,13 +69,50 @@ export const getProductBySlug = async (req: Request, res: Response, next: NextFu
             attribute: true,
             option: true
           }
+        },
+        attr_multi_values: {
+          include: {
+            attribute: true,
+            option: true
+          }
         }
       }
     });
 
     if (!product) throw new AppError(404, 'Ürün bulunamadı');
 
-    res.json({ data: product });
+    console.log(`[DEBUG] Fetched product ${product.id} with ${product.attr_values.length} flat values and ${product.attr_multi_values.length} multi values`);
+
+    // Özellikleri tek bir listede birleştirelim
+    const combinedMap: Record<string, string> = {};
+
+    // 1. Tekli değerler
+    (product.attr_values || []).forEach((av: any) => {
+      const val = av.value_text || av.value_number || av.option?.value;
+      if (val !== undefined && val !== null) {
+        combinedMap[av.attribute.name] = String(val);
+      }
+    });
+
+    // 2. Çoklu değerler (Renk vb.)
+    (product.attr_multi_values || []).forEach((amv: any) => {
+      const attrName = amv.attribute.name;
+      const optVal = amv.option.value;
+      if (combinedMap[attrName]) {
+        combinedMap[attrName] += `, ${optVal}`;
+      } else {
+        combinedMap[attrName] = optVal;
+      }
+    });
+
+    const attributes = Object.entries(combinedMap).map(([name, value]) => ({ name, value }));
+
+    res.json({ 
+      data: {
+        product,
+        attributes
+      } 
+    });
   } catch (error) {
     next(error);
   }

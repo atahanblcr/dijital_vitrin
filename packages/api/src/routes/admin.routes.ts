@@ -4,6 +4,7 @@ import { prisma } from '../config/database';
 import { createBusinessSchema, updateBusinessSchema } from '../validators/admin.validator';
 import { hashPassword } from '../utils/password';
 import { UserRole } from '@prisma/client';
+import { generateAccessToken } from '../utils/jwt';
 
 const router = Router();
 
@@ -25,7 +26,7 @@ router.get('/businesses', async (req, res, next) => {
 // Yeni işletme ekle (Business + Admin User)
 router.post('/businesses', async (req, res, next) => {
   try {
-    const validatedData = createBusinessSchema.parse(req.body);
+    const validatedData = await createBusinessSchema.parseAsync(req.body);
 
     // Slug ve Kullanıcı adı çakışma kontrolü
     const existingBiz = await prisma.business.findUnique({ where: { slug: validatedData.slug } });
@@ -74,7 +75,7 @@ router.post('/businesses', async (req, res, next) => {
 // İşletme güncelle
 router.put('/businesses/:id', async (req, res, next) => {
   try {
-    const validatedData = updateBusinessSchema.parse(req.body);
+    const validatedData = await updateBusinessSchema.parseAsync(req.body);
     const { id } = req.params;
 
     const business = await prisma.business.update({
@@ -115,6 +116,65 @@ router.delete('/businesses/:id', async (req, res, next) => {
     const { id } = req.params;
     await prisma.business.delete({ where: { id } });
     res.json({ message: 'İşletme başarıyla silindi' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Sistem ayarlarını getir
+router.get('/settings', async (req, res, next) => {
+  try {
+    let settings = await prisma.systemSettings.findUnique({ where: { id: 'singleton' } });
+    if (!settings) {
+      settings = await prisma.systemSettings.create({ data: { id: 'singleton' } });
+    }
+    res.json({ data: settings });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Sistem ayarlarını güncelle
+router.put('/settings', async (req, res, next) => {
+  try {
+    const { default_max_images, max_file_size_mb, global_announcement, maintenance_mode } = req.body;
+    const settings = await prisma.systemSettings.upsert({
+      where: { id: 'singleton' },
+      update: { default_max_images, max_file_size_mb, global_announcement, maintenance_mode },
+      create: { id: 'singleton', default_max_images, max_file_size_mb, global_announcement, maintenance_mode }
+    });
+    res.json({ data: settings });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// İşletme Paneline Yedek Giriş (Impersonate)
+router.post('/businesses/:id/impersonate', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    // İşletmeye ait ilk admin kullanıcısını bul
+    const businessUser = await prisma.user.findFirst({
+      where: { business_id: id, role: UserRole.business_admin }
+    });
+
+    if (!businessUser) {
+      return res.status(404).json({ error: 'İşletmeye ait admin hesabı bulunamadı' });
+    }
+
+    // O kullanıcı adına token üret
+    const token = generateAccessToken({
+      id: businessUser.id,
+      username: businessUser.username,
+      role: 'business_admin',
+      business_id: businessUser.business_id
+    });
+
+    // Loglama yapılabilir (Tasarım dokümanı zorunluluğu)
+    console.log(`[LOG] Super Admin (${req.user?.username}), ${id} ID'li işletmeye yedek giriş yaptı.`);
+
+    res.json({ data: { token } });
   } catch (error) {
     next(error);
   }

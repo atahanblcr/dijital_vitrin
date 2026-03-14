@@ -11,11 +11,14 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
 
     const products = await prisma.product.findMany({
       where: { business_id: businessId },
-      orderBy: { sort_order: 'asc' }, // nulls last varsayılanı çalışır
+      orderBy: { sort_order: 'asc' },
       include: {
         category: { select: { id: true, name: true } },
         images: { orderBy: { sort_order: 'asc' } },
         attr_values: {
+          include: { attribute: true, option: true }
+        },
+        attr_multi_values: {
           include: { attribute: true, option: true }
         }
       }
@@ -27,6 +30,41 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
+// Ortak özellik kaydetme fonksiyonu
+async function saveProductAttributes(tx: any, productId: string, attributes: any[]) {
+  if (!attributes || attributes.length === 0) return;
+
+  console.log(`[DEBUG] Saving attributes for product ${productId}:`, JSON.stringify(attributes, null, 2));
+
+  for (const attr of attributes) {
+    const defAttr = await tx.categoryAttribute.findUnique({ where: { id: attr.attribute_id } });
+    if (!defAttr) continue;
+
+    if (defAttr.type === 'select' && defAttr.is_multiple && attr.multi_option_ids) {
+      // Çoklu seçim (Multi-select)
+      const multiData = attr.multi_option_ids.map((optId: string) => ({
+        product_id: productId,
+        attribute_id: attr.attribute_id,
+        option_id: optId,
+      }));
+      if (multiData.length > 0) {
+        await tx.productAttributeMultiValue.createMany({ data: multiData });
+      }
+    } else {
+      // Tekli değer (Text, Number, Single-select)
+      await tx.productAttributeValue.create({
+        data: {
+          product_id: productId,
+          attribute_id: attr.attribute_id,
+          value_text: attr.value_text,
+          value_number: attr.value_number,
+          value_option_id: attr.value_option_id,
+        }
+      });
+    }
+  }
+}
+
 export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const businessId = req.user?.business_id;
@@ -34,79 +72,73 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 
     const { name, category_id, short_desc, long_desc, is_campaign, in_stock, is_active, attributes } = req.body;
 
-    // Kategori kontrolü
     const category = await prisma.category.findFirst({ where: { id: category_id, business_id: businessId } });
     if (!category) throw new AppError(404, 'Kategori bulunamadı');
 
-    // Slug üretimi
     const slug = await createUniqueSlug(name, businessId);
 
-    // Kategoriye ait zorunlu özellikleri kontrol edelim
-    const requiredAttributes = await prisma.categoryAttribute.findMany({
-      where: { category_id, is_required: true }
-    });
-
-    for (const reqAttr of requiredAttributes) {
-      const found = attributes?.find((a: any) => a.attribute_id === reqAttr.id);
-      
-      const hasValue = found && (
-        (reqAttr.type === 'text' && found.value_text) ||
-        (reqAttr.type === 'number' && found.value_number !== null && found.value_number !== undefined) ||
-        (reqAttr.type === 'select' && !reqAttr.is_multiple && found.value_option_id) ||
-        (reqAttr.type === 'select' && reqAttr.is_multiple && found.multi_option_ids && found.multi_option_ids.length > 0)
-      );
-
-      if (!hasValue) {
-        throw new AppError(400, `"${reqAttr.name}" özelliği zorunludur.`);
-      }
-    }
-
-    // Ürünü kaydet
-    const product = await prisma.product.create({
-      data: {
-        business_id: businessId,
-        category_id,
-        name,
-        slug,
-        short_desc,
-        long_desc,
-        is_campaign,
-        in_stock,
-        is_active,
-      }
-    });
-
-    // Dinamik özellikleri kaydet
-    if (attributes && attributes.length > 0) {
-      for (const attr of attributes) {
-        // İlgili attribute'un tipini ve multi-select durumunu bul
-        const defAttr = await prisma.categoryAttribute.findUnique({ where: { id: attr.attribute_id }});
-        if (!defAttr) continue;
-
-        if (defAttr.type === 'select' && defAttr.is_multiple && attr.multi_option_ids) {
-          // Multi-select durumu için özel tabloya çoklu kayıt atıyoruz
-          const multiData = attr.multi_option_ids.map((optId: string) => ({
-            product_id: product.id,
-            attribute_id: attr.attribute_id,
-            option_id: optId,
-          }));
-          await prisma.productAttributeMultiValue.createMany({ data: multiData });
-        } else {
-          // Normal kayıt
-          await prisma.productAttributeValue.create({
-            data: {
-              product_id: product.id,
-              attribute_id: attr.attribute_id,
-              value_text: attr.value_text,
-              value_number: attr.value_number,
-              value_option_id: attr.value_option_id,
-            }
-          });
+    const result = await prisma.$transaction(async (tx) => {
+      const product = await tx.product.create({
+        data: {
+          business_id: businessId,
+          category_id,
+          name,
+          slug,
+          short_desc,
+          long_desc,
+          is_campaign,
+          in_stock,
+          is_active,
         }
-      }
-    }
+      });
 
-    res.status(201).json({ data: product });
+      await saveProductAttributes(tx, product.id, attributes);
+      return product;
+    });
+
+    res.status(201).json({ data: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const businessId = req.user?.business_id;
+    const { id } = req.params;
+    const { name, category_id, short_desc, long_desc, is_campaign, in_stock, is_active, attributes } = req.body;
+
+    const existingProduct = await prisma.product.findFirst({ where: { id, business_id: businessId } });
+    if (!existingProduct) throw new AppError(404, 'Ürün bulunamadı');
+
+    const category = await prisma.category.findFirst({ where: { id: category_id, business_id: businessId } });
+    if (!category) throw new AppError(404, 'Kategori bulunamadı');
+
+    const result = await prisma.$transaction(async (tx) => {
+      const product = await tx.product.update({
+        where: { id },
+        data: {
+          category_id,
+          name,
+          short_desc,
+          long_desc,
+          is_campaign,
+          in_stock,
+          is_active,
+        }
+      });
+
+      // Eski özellikleri sil
+      await tx.productAttributeValue.deleteMany({ where: { product_id: id } });
+      await tx.productAttributeMultiValue.deleteMany({ where: { product_id: id } });
+
+      // Yeni özellikleri kaydet
+      await saveProductAttributes(tx, id, attributes);
+      
+      return product;
+    });
+
+    res.json({ data: result });
   } catch (error) {
     next(error);
   }
@@ -124,14 +156,12 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
 
     if (!product) throw new AppError(404, 'Ürün bulunamadı');
 
-    // Önce Cloudinary üzerindeki görselleri sil
     for (const image of product.images) {
       if (image.public_id) {
         await deleteImage(image.public_id);
       }
     }
 
-    // Veritabanı Cascade Delete sayesinde attribute_values ve image kayıtları otomatik silinecektir
     await prisma.product.delete({ where: { id } });
 
     res.json({ data: { message: 'Ürün ve tüm görselleri başarıyla silindi' } });
@@ -140,75 +170,10 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const businessId = req.user?.business_id;
-    const { id } = req.params;
-    const { name, category_id, short_desc, long_desc, is_campaign, in_stock, is_active, attributes } = req.body;
-
-    const existingProduct = await prisma.product.findFirst({ where: { id, business_id: businessId } });
-    if (!existingProduct) throw new AppError(404, 'Ürün bulunamadı');
-
-    // Kategori kontrolü
-    const category = await prisma.category.findFirst({ where: { id: category_id, business_id: businessId } });
-    if (!category) throw new AppError(404, 'Kategori bulunamadı');
-
-    // Eğer isim değiştiyse slug'ı güncellemiyoruz (SEO için tehlikeli olabilir, opsiyonel bırakılabilir)
-
-    // Ürünü güncelle
-    const product = await prisma.product.update({
-      where: { id },
-      data: {
-        category_id,
-        name,
-        short_desc,
-        long_desc,
-        is_campaign,
-        in_stock,
-        is_active,
-      }
-    });
-
-    // Özellikleri güncelle (Önce siliyoruz, sonra yeniden ekliyoruz - En temiz yöntem)
-    await prisma.productAttributeValue.deleteMany({ where: { product_id: id } });
-    await prisma.productAttributeMultiValue.deleteMany({ where: { product_id: id } });
-
-    if (attributes && attributes.length > 0) {
-      for (const attr of attributes) {
-        const defAttr = await prisma.categoryAttribute.findUnique({ where: { id: attr.attribute_id } });
-        if (!defAttr) continue;
-
-        if (defAttr.type === 'select' && defAttr.is_multiple && attr.multi_option_ids) {
-          const multiData = attr.multi_option_ids.map((optId: string) => ({
-            product_id: product.id,
-            attribute_id: attr.attribute_id,
-            option_id: optId,
-          }));
-          await prisma.productAttributeMultiValue.createMany({ data: multiData });
-        } else {
-          await prisma.productAttributeValue.create({
-            data: {
-              product_id: product.id,
-              attribute_id: attr.attribute_id,
-              value_text: attr.value_text,
-              value_number: attr.value_number,
-              value_option_id: attr.value_option_id,
-            }
-          });
-        }
-      }
-    }
-
-    res.json({ data: product });
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const updateSortOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const businessId = req.user?.business_id;
-    const { orders } = req.body; // Array of { id, sort_order }
+    const { orders } = req.body;
 
     if (!orders || !Array.isArray(orders)) throw new AppError(400, 'Geçersiz veri formatı');
 
@@ -227,12 +192,10 @@ export const updateSortOrders = async (req: Request, res: Response, next: NextFu
   }
 };
 
-// ─── GÖRSEL YÜKLEME ──────────────────────────────────────────────
-
 export const uploadProductImages = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const businessId = req.user?.business_id;
-    const { id } = req.params; // Product ID
+    const { id } = req.params;
 
     if (!businessId) throw new AppError(403, 'Yetki yok');
 
@@ -258,7 +221,6 @@ export const uploadProductImages = async (req: Request, res: Response, next: Nex
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      // Cloudinary'de düzenli bir yapı olması için: dijital-vitrin/businessSlug/productSlug/
       const folderPath = `dijital-vitrin/${business?.slug}/${product.slug}`;
       const uploadResult = await uploadImage(file.buffer, folderPath);
 
@@ -294,15 +256,12 @@ export const deleteProductImage = async (req: Request, res: Response, next: Next
     const image = await prisma.productImage.findFirst({ where: { id: imgId, product_id: id } });
     if (!image) throw new AppError(404, 'Görsel bulunamadı');
 
-    // Cloudinary'den sil
     if (image.public_id) {
       await deleteImage(image.public_id);
     }
 
-    // DB'den sil
     await prisma.productImage.delete({ where: { id: imgId } });
 
-    // Eğer silinen ana görsel idiyse, kalan ilk görseli ana görsel yap
     if (image.is_primary) {
       const firstRemaining = await prisma.productImage.findFirst({
         where: { product_id: id },

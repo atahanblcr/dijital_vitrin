@@ -37,10 +37,26 @@ const ProductForm = ({ onBack, onSuccess, initialData }: { onBack: () => void, o
       is_campaign: initialData.is_campaign,
       in_stock: initialData.in_stock,
       is_active: initialData.is_active,
-      attributes: initialData.attr_values?.map((av: any) => ({
-        attribute_id: av.attribute_id,
-        value: av.value_text || av.value_number || av.value_option_id
-      })) || []
+      attributes: [
+        ...(initialData.attr_values?.map((av: any) => ({
+          attribute_id: av.attribute_id,
+          value_text: av.value_text,
+          value_number: av.value_number,
+          value_option_id: av.value_option_id
+        })) || []),
+        ...(initialData.attr_multi_values?.reduce((acc: any[], amv: any) => {
+          const existing = acc.find(a => a.attribute_id === amv.attribute_id);
+          if (existing) {
+            existing.multi_option_ids.push(amv.option_id);
+          } else {
+            acc.push({
+              attribute_id: amv.attribute_id,
+              multi_option_ids: [amv.option_id]
+            });
+          }
+          return acc;
+        }, []) || [])
+      ]
     } : { in_stock: true, is_active: true, is_campaign: false, attributes: [] }
   });
 
