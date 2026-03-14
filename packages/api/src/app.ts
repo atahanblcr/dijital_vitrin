@@ -5,6 +5,7 @@ import { errorHandler } from './middleware/errorHandler';
 
 import authRoutes from './routes/auth.routes';
 import businessRoutes from './routes/business.routes';
+import analyticsRoutes from './routes/analytics.routes';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(globalRateLimiter);
 // 3. API Route'ları
 app.use('/api/auth', authRoutes);
 app.use('/api/business', businessRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -5,6 +5,8 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import WhatsAppButton from '../../components/ui/WhatsAppButton';
 import { Metadata } from 'next';
+import { generateBaseMetadata } from '../../components/seo/generateMetadata';
+import BusinessJsonLd from '../../components/seo/BusinessJsonLd';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,12 +21,23 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
   }
   
   const b = data.business;
+  const description = b.about_text?.substring(0, 160) || b.slogan || `${b.name} dijital vitrini.`;
+  const url = `https://${b.slug}.dijitalvitrin.com`;
+  
+  const baseMeta = generateBaseMetadata({
+    title: b.name,
+    description,
+    image: b.logo_url || undefined,
+    url,
+    businessName: b.name,
+  });
+
   return {
+    ...baseMeta,
     title: {
       template: `%s | ${b.name}`,
       default: b.name,
     },
-    description: b.about_text?.substring(0, 160) || `${b.name} dijital vitrini.`,
     icons: {
       icon: b.logo_url || '/favicon.ico',
     },
@@ -59,6 +72,7 @@ export default async function StorefrontLayout({ children, params }: LayoutProps
       accentColor={business.theme_accent}
     >
       <div className="flex min-h-screen flex-col bg-gray-50 text-gray-900 font-sans">
+        <BusinessJsonLd business={business} />
         <Header business={business} />
         
         <main className="flex-1 w-full max-w-7xl mx-auto">

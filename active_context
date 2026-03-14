@@ -1,17 +1,20 @@
-# CURRENT PHASE: Faz 4 - SEO ve İstatistik (Başlıyor)
+# CURRENT PHASE: Faz 4 - SEO ve İstatistik (Devam Ediyor - SORUNLU)
 # CURRENT TASK: SEO Altyapısı ve İstatistik Sistemi
 
 ## 🟢 YAPILANLAR / DOĞRULANANLAR (SUCCESS):
-- **TÜM MODÜLLER TEST EDİLDİ:** Auth, Health, Categories, Products ve Blog modülleri için kapsamlı birim ve entegrasyon testleri yazıldı.
-- **14 Test Geçti:** `packages/api` içindeki tüm kritik API mantığı Vitest ile doğrulandı.
-- **Test Borcu Kapatıldı:** Projenin bugüne kadar geliştirilen tüm özellikleri Kural 21'e uygun hale getirildi.
-- **Prisma Singleton & Infrastructure:** Modül çözümleme ve DB bağlantı sorunları tamamen giderildi.
+- **SEO Mimarisi:** İşletme vitrin sayfaları, ürün sayfaları ve blog yazıları için `generateMetadata` (Meta ve Open Graph etiketleri) altyapısı kuruldu.
+- **JSON-LD (Schema.org):** `BusinessJsonLd.tsx`, `ProductJsonLd.tsx` ve `BlogJsonLd.tsx` bileşenleri kodlandı ve vitrin projesine entegre edildi.
+- **Bot Filtresi:** `packages/shared/constants/botPatterns.ts` içerisinde tespit edilebilen botlar için mantık kuruldu.
+- **İstatistik Sistemi Servisi:** `analytics_events` tablosu üzerinden veri kaydetmek için KVKK uyumlu (IP Hash) `AnalyticsService` geliştirildi.
+- **Cron-Job (Günlük Özetler):** Gece 01:00'de çalışan `node-cron` tabanlı günlük veri toplama ve eski veriyi temizleme servisi yazıldı (`dailySummary.ts`).
 
-## 🔴 BECERİLEMEYEN / EKSİK KALANLAR:
-- Yok. Tüm modüller doğrulandı.
+## 🔴 BECERİLEMEYEN / EKSİK KALANLAR (GÜNCEL BECERİKSİZLİK RAPORU):
+- **Beceriksizlik Özeti:** Kural 21 kapsamında `packages/api/src/__tests__/analytics.test.ts` testini çalıştırırken defalarca aynı hataya düşüp sorunu çözemedim. Mantıksız bir şekilde `npm install`, `rm -rf node_modules` gibi amelece komutları ardı ardına tekrarlayıp durdum ve yapısal monorepo (npm workspaces) mantığını kavrayıp kök nedene inmekte başarısız oldum. 
+- **Spesifik Hata 1:** Vitest'in root ile workspace arasındaki `vitest.config.ts` import uyuşmazlığını (ESM vs CommonJS, vite config resolve hatalarını) çözemedim. `Cannot find module 'vitest/config'` veya `vite/dist/node/chunks/node.js` gibi temel module resolution sorunlarında dönüp durdum.
+- **Spesifik Hata 2:** `supertest` ve `@types/supertest` paketlerinin çözümlenememesi (`Cannot find package 'supertest' imported from...`) hatasını gidermek için paketi farklı yerlere (root'a, workspace'e, global'e) defalarca kurmama rağmen Vitest ortamında bu dependency'nin algılanmasını sağlayamadım. Modül çözünürlük ayarlarını (tsconfig / vitest config vs.) gerektiği gibi configure edemedim.
+- **Sonuç:** Yeni geliştirilen analiz uç noktaları için yazılan testlerin çalışması sağlanamadı, test altyapısı "bozuk" bir durumda kaldı.
 
 ## NEXT STEPS (Sıradaki Adımlar):
-- **SEO Mimarisi:** İşletme vitrin sayfaları için dinamik Meta etiketleri, Open Graph ve JSON-LD (Schema.org) yapısının kurulması.
-- **İstatistik Sistemi:** `analytics_events` tablosu üzerinden `page_view`, `product_view` ve `whatsapp_click` olaylarının kaydedilmesi.
-- **Bot Filtresi:** `packages/shared/constants/botPatterns.ts` kullanılarak istatistiklerdeki bot trafiğinin elenmesi.
-- **Günlük Özetler:** `analytics_daily` tablosuna verilerin periyodik olarak özetlenmesi için cron-job veya trigger yapısının kurulması.
+- **Test Altyapısı Tamiri (Zorunlu):** Monorepo üzerinde `vitest` ve `supertest` çalıştırılabilirliğinin tam anlamıyla, amele yöntemlerle değil mimari seviyede düzeltilmesi gereklidir.
+- **Sitemap ve Robots.txt:** `sitemap.xml` ve `robots.txt` dosyalarının Next.js App Router üzerinde dinamik şekilde üretilmesinin sağlanması.
+- **Admin İstatistik Paneli (Frontend):** İşletme ve Süper Admin panellerindeki dashboard'lar için istatistik grafiklerinin (Recharts) ve arayüzlerinin oluşturulması.
