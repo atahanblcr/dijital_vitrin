@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Tags, FileText, BarChart2, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Tags, FileText, BarChart2, LogOut, Search } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
@@ -9,6 +9,7 @@ const navItems = [
   { label: 'Kategoriler', icon: Tags, href: '/categories' },
   { label: 'Blog & Duyuru', icon: FileText, href: '/blog' },
   { label: 'İstatistikler', icon: BarChart2, href: '/analytics' },
+  { label: "Google'da Görün 🔍", icon: Search, href: '/google-guide' },
 ];
 
 const Sidebar = () => {

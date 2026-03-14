@@ -1,29 +1,46 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-const SECTOR_TEMPLATES = {
-  elektronik: ['Telefon & Aksesuar', 'Bilgisayar', 'Ses & Görüntü', 'Küçük Ev Aletleri'],
-  butik: ['Kadın Giyim', 'Erkek Giyim', 'Çocuk Giyim', 'Dış Giyim'],
-  aksesuar: ['Takı & Mücevher', 'Çanta & Cüzdan', 'Saat', 'Gözlük'],
-  el_isi: ['El Örgüsü', 'Ahşap El Sanatları', 'Seramik & Çini', 'Tekstil & Nakış'],
-  oto_galeri: ['Binek Araç', 'SUV & Crossover', 'Ticari Araç', 'Motosiklet'],
-};
-
 async function main() {
-  console.log('Seed başlatılıyor...');
+  console.log('🚀 Kesin çözüm seed işlemi başlatılıyor...');
 
-  // Gerekirse buraya süper admin seed işlemleri de eklenebilir.
-  // ...
+  // Salt rounds 12 - API ile birebir aynı olmalı
+  const salt = await bcrypt.genSalt(12);
+  const passwordHash = await bcrypt.hash('Admin123!', salt);
 
-  console.log('Seed tamamlandı.');
+  console.log('Kullanılan Hash:', passwordHash);
+
+  // 1. Süper Admin
+  await prisma.user.upsert({
+    where: { username: 'superadmin' },
+    update: { password_hash: passwordHash, failed_attempts: 0, locked_until: null },
+    create: {
+      username: 'superadmin',
+      password_hash: passwordHash,
+      role: 'super_admin',
+    },
+  });
+
+  // 2. İşletme Admin
+  const demoBus = await prisma.business.findUnique({ where: { slug: 'demo-isletme' } });
+  if (demoBus) {
+    await prisma.user.upsert({
+      where: { username: 'demo_admin' },
+      update: { password_hash: passwordHash, failed_attempts: 0, locked_until: null },
+      create: {
+        username: 'demo_admin',
+        password_hash: passwordHash,
+        role: 'business_admin',
+        business_id: demoBus.id,
+      },
+    });
+  }
+
+  console.log('✨ Seed başarıyla tamamlandı. Şifreler güncellendi.');
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());

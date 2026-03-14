@@ -1162,4 +1162,7 @@ Geliştirme sürecinde netleştirilmesi gereken konular:
 > - API tarafı için `Jest + Supertest` gibi araçlarla endpoint doğrulama testleri yazılacaktır.
 > - Bir özellik (feature) geliştirildiğinde, o özelliğe ait test senaryoları kodlanmadan bir sonraki göreve geçilmeyecektir.
 
+## 22. Otomatik Test Kuralları (ZORUNLU)
+Test yazarken, test konfigürasyonlarını düzenlerken veya test hatalarını çözerken DAİMA `.gemini/skills/testing/SKILL.md` dosyasındaki kurallara uyulacaktır. Test altyapısı (Vitest) monorepo mimarisine göre kurulmuştur, yapay zeka bu ayarları "hack" yöntemlerle (alias ekleyerek veya alt paketlere kütüphane kurarak) aşmaya çalışamaz.
+
 *Dijital Vitrin Platformu — Gizlidir*

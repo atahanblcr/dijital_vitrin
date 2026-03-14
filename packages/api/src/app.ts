@@ -6,6 +6,8 @@ import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/auth.routes';
 import businessRoutes from './routes/business.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import adminRoutes from './routes/admin.routes';
+import storefrontRoutes from './routes/storefront.routes';
 
 const app = express();
 
@@ -18,7 +20,10 @@ app.use(globalRateLimiter);
 // 3. API Route'ları
 app.use('/api/auth', authRoutes);
 app.use('/api/business', businessRoutes);
+applySecurityMiddlewares(app); // Re-apply for safety or order
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/storefront', storefrontRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

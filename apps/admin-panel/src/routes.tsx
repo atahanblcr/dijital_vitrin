@@ -7,6 +7,8 @@ import AdminLayout from './components/layout/AdminLayout';
 import CategoryList from './pages/categories/CategoryList';
 import ProductList from './pages/products/ProductList';
 import BlogList from './pages/blog/BlogList';
+import Analytics from './pages/analytics/Analytics';
+import GoogleGuide from './pages/GoogleGuide';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -30,7 +32,8 @@ export const AppRoutes = () => {
           <Route path="categories" element={<CategoryList />} />
           <Route path="products" element={<ProductList />} />
           <Route path="blog" element={<BlogList />} />
-          {/* Gelecek route'lar: /analytics */}
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="google-guide" element={<GoogleGuide />} />
         </Route>
       </Routes>
     </BrowserRouter>

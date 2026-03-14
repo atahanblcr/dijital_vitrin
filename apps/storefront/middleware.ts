@@ -3,42 +3,35 @@ import type { NextRequest } from 'next/server';
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
 
 export function middleware(req: NextRequest) {
   const url = req.nextUrl;
-  
-  // Get hostname of request (e.g. demo.dijitalvitrin.com, demo.localhost:3000)
-  const hostname = req.headers.get('host') || 'dijitalvitrin.com';
+  const hostname = req.headers.get('host') || '';
 
-  // Extract the root domain and the subdomain
-  // In production, BASE_DOMAIN will be "dijitalvitrin.com"
-  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'localhost:3000';
+  // 1. Ana domain kontrolü (localhost:3000 veya dijitalvitrin.com)
+  const isBaseDomain = hostname === 'localhost:3000' || hostname === 'dijitalvitrin.com';
   
-  // Exclude the base domain to get the subdomain
-  const currentHost =
-    process.env.NODE_ENV === 'production' && process.env.VERCEL === '1'
-      ? hostname.replace(`.dijitalvitrin.com`, '')
-      : hostname.replace(`.${baseDomain}`, '');
-
-  // If there's no subdomain (i.e. we are on dijitalvitrin.com or localhost:3000)
-  if (currentHost === baseDomain || currentHost === hostname) {
-    // Optionally redirect to main platform landing page
-    // return NextResponse.rewrite(new URL('/landing', req.url));
+  if (isBaseDomain) {
+    // Ana domaindeysek hiçbir şey yapma (veya landing page'e yönlendir)
     return NextResponse.next();
   }
 
-  // We have a subdomain! Let's rewrite the URL so the Next.js app 
-  // can catch it under the app/[slug] folder structure.
-  // Example: demo.dijitalvitrin.com/urunler -> /demo/urunler
-  return NextResponse.rewrite(new URL(`/${currentHost}${url.pathname}${url.search}`, req.url));
+  // 2. Subdomain'i ayıkla
+  let slug = '';
+  if (hostname.endsWith('.localhost:3000')) {
+    slug = hostname.replace('.localhost:3000', '');
+  } else if (hostname.endsWith('.dijitalvitrin.com')) {
+    slug = hostname.replace('.dijitalvitrin.com', '');
+  }
+
+  if (slug) {
+    // 3. Rewrite: URL'yi içten /slug/... şeklinde değiştir
+    const newUrl = new URL(`/${slug}${url.pathname}${url.search}`, req.url);
+    return NextResponse.rewrite(newUrl);
+  }
+
+  return NextResponse.next();
 }

@@ -42,6 +42,11 @@ export const errorHandler = (
     }
   }
 
+  // Body-parser entity too large error (413)
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'Gönderilen veri çok büyük (Max 1MB)' });
+  }
+
   console.error('Unhandled Error:', err);
   return res.status(500).json({ error: 'Sunucu hatası. Lütfen tekrar deneyin.' });
 };

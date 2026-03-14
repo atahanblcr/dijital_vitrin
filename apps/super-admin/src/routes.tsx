@@ -4,6 +4,9 @@ import { useAuthStore } from './store/authStore';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import SuperAdminLayout from './components/layout/SuperAdminLayout';
+import BusinessList from './pages/businesses/BusinessList';
+import PlatformAnalytics from './pages/analytics/PlatformAnalytics';
+import PlatformSettings from './pages/settings/PlatformSettings';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -24,7 +27,9 @@ export const AppRoutes = () => {
         }>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          {/* Gelecek route'lar: /businesses, /settings, vb. */}
+          <Route path="businesses" element={<BusinessList />} />
+          <Route path="analytics" element={<PlatformAnalytics />} />
+          <Route path="settings" element={<PlatformSettings />} />
         </Route>
       </Routes>
     </BrowserRouter>
