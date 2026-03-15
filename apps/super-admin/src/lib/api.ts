@@ -18,7 +18,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // 401 hatası ve refresh token mantığı eklenebilir
+    if (error.response?.status === 401) {
+      localStorage.removeItem('sa_access_token');
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );

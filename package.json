@@ -3,11 +3,12 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "e2e"
   ],
   "scripts": {
     "dev:api": "npm run dev --workspace=packages/api",
-    "dev:storefront": "npm run dev --workspace=apps/storefront",
+    "dev:storefront": "npm run dev --workspace=apps/storefront -- --port 3000",
     "dev:admin": "npm run dev --workspace=apps/admin-panel",
     "dev:super": "npm run dev --workspace=apps/super-admin",
     "db:migrate": "npm run migrate --workspace=packages/database",

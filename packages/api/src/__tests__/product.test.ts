@@ -6,8 +6,9 @@ import * as slugService from '../services/slug.service';
 import * as imageService from '../services/image.service';
 
 // Mocking Dependencies
-vi.mock('../config/database', () => ({
-  prisma: {
+vi.mock('../config/database', () => {
+  const mockPrisma = {
+    $transaction: vi.fn((callback) => callback(mockPrisma)),
     product: {
       findMany: vi.fn(),
       create: vi.fn(),
@@ -24,21 +25,25 @@ vi.mock('../config/database', () => ({
     },
     productAttributeValue: {
       create: vi.fn(),
+      deleteMany: vi.fn(),
     },
     productAttributeMultiValue: {
       createMany: vi.fn(),
+      deleteMany: vi.fn(),
     },
     productImage: {
       create: vi.fn(),
       findFirst: vi.fn(),
       delete: vi.fn(),
       update: vi.fn(),
+      deleteMany: vi.fn(),
     },
     business: {
       findUnique: vi.fn(),
     }
-  }
-}));
+  };
+  return { prisma: mockPrisma };
+});
 
 vi.mock('../services/slug.service', () => ({
   createUniqueSlug: vi.fn().mockResolvedValue('test-product-slug'),
@@ -96,7 +101,7 @@ describe('Products Controller Unit Tests', () => {
         attributes: [] // Missing required 'Brand'
       };
 
-      (prisma.category.findFirst as any).mockResolvedValue({ id: 'cat-1' });
+      (prisma.category.findFirst as any).mockResolvedValue({ id: 'cat-1', business_id: 'test-business-id' });
       (prisma.categoryAttribute.findMany as any).mockResolvedValue([
         { id: 'attr-1', name: 'Brand', is_required: true, type: 'text' }
       ]);

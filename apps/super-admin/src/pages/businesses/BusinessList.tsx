@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import BusinessForm from './BusinessForm';
+import ConfirmationModal from '../../components/ui/ConfirmationModal';
 
 const BusinessList = () => {
   const [businesses, setBusinesses] = useState<any[]>([]);
@@ -12,6 +13,11 @@ const BusinessList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState<any>(null);
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: string; name: string }>({
+    isOpen: false,
+    id: '',
+    name: ''
+  });
 
   const fetchBusinesses = async () => {
     setLoading(true);
@@ -55,12 +61,11 @@ const BusinessList = () => {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`"${name}" işletmesini ve ona ait TÜM verileri (ürünler, kategoriler, bloglar) silmek istediğinize emin misiniz?`)) return;
-    
+  const handleDelete = async () => {
     try {
-      await api.delete(`/admin/businesses/${id}`);
+      await api.delete(`/admin/businesses/${deleteModal.id}`);
       toast.success('İşletme tamamen silindi');
+      setDeleteModal({ isOpen: false, id: '', name: '' });
       fetchBusinesses();
     } catch (error) {
       toast.error('Silme işlemi başarısız');
@@ -83,7 +88,8 @@ const BusinessList = () => {
       const { token } = res.data.data;
       
       // İşletme panelini yeni sekmede aç (Senin ortamında İşletme Paneli 3001 portunda çalışıyor)
-      const win = window.open(`http://localhost:3001/login?token=${token}`, '_blank');
+      const adminUrl = import.meta.env.VITE_ADMIN_PANEL_URL || 'http://localhost:3001';
+      const win = window.open(`${adminUrl}/login?token=${token}`, '_blank');
       if (win) win.focus();
       
       toast.success('İşletme paneline yönlendiriliyorsunuz...');
@@ -250,7 +256,7 @@ const BusinessList = () => {
                           <Edit2 className="w-5 h-5" />
                         </button>
                         <button 
-                          onClick={() => handleDelete(biz.id, biz.name)}
+                          onClick={() => setDeleteModal({ isOpen: true, id: biz.id, name: biz.name })}
                           className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" 
                           title="Sil"
                         >
@@ -265,6 +271,16 @@ const BusinessList = () => {
           </table>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, id: '', name: '' })}
+        onConfirm={handleDelete}
+        title="İşletmeyi Sil"
+        description={`${deleteModal.name} işletmesini ve ona ait tüm ürünleri, blog yazılarını ve istatistikleri kalıcı olarak silmek üzeresiniz. Bu işlem geri alınamaz.`}
+        confirmText="sil"
+        expectedValue={deleteModal.name}
+      />
     </div>
   );
 };

@@ -75,6 +75,19 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
     const category = await prisma.category.findFirst({ where: { id: category_id, business_id: businessId } });
     if (!category) throw new AppError(404, 'Kategori bulunamadı');
 
+    // Zorunlu özellik kontrolü
+    const requiredAttrs = await prisma.categoryAttribute.findMany({
+      where: { category_id, is_required: true }
+    });
+
+    for (const reqAttr of requiredAttrs) {
+      const provided = attributes?.find((a: any) => a.attribute_id === reqAttr.id);
+      const value = provided?.value_text || provided?.value_number || provided?.value_option_id || (provided?.multi_option_ids?.length > 0);
+      if (!value) {
+        throw new AppError(400, `"${reqAttr.name}" özelliği zorunludur.`);
+      }
+    }
+
     const slug = await createUniqueSlug(name, businessId);
 
     const result = await prisma.$transaction(async (tx) => {
@@ -113,6 +126,19 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
 
     const category = await prisma.category.findFirst({ where: { id: category_id, business_id: businessId } });
     if (!category) throw new AppError(404, 'Kategori bulunamadı');
+
+    // Zorunlu özellik kontrolü
+    const requiredAttrs = await prisma.categoryAttribute.findMany({
+      where: { category_id, is_required: true }
+    });
+
+    for (const reqAttr of requiredAttrs) {
+      const provided = attributes?.find((a: any) => a.attribute_id === reqAttr.id);
+      const value = provided?.value_text || provided?.value_number || provided?.value_option_id || (provided?.multi_option_ids?.length > 0);
+      if (!value) {
+        throw new AppError(400, `"${reqAttr.name}" özelliği zorunludur.`);
+      }
+    }
 
     const result = await prisma.$transaction(async (tx) => {
       const product = await tx.product.update({

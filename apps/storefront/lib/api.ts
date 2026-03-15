@@ -13,9 +13,14 @@ export async function getStorefrontData(slug: string) {
   return res.json();
 }
 
-export async function getStorefrontProducts(slug: string) {
-  const res = await fetch(`${API_URL}/api/storefront/${slug}/products`, {
-    next: { revalidate: 60, tags: ['products', slug] },
+export async function getStorefrontProducts(slug: string, categoryId?: string) {
+  const url = new URL(`${API_URL}/api/storefront/${slug}/products`);
+  if (categoryId && categoryId !== 'all') {
+    url.searchParams.append('categoryId', categoryId);
+  }
+  
+  const res = await fetch(url.toString(), {
+    next: { revalidate: 60, tags: ['products', slug, categoryId || 'all'] },
   });
   
   if (!res.ok) {

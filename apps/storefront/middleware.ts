@@ -25,8 +25,16 @@ export function middleware(req: NextRequest) {
     slug = hostname.replace('.localhost:3000', '');
   } else if (hostname.endsWith('.dijitalvitrin.com')) {
     slug = hostname.replace('.dijitalvitrin.com', '');
-  } else if (hostname.endsWith('.dijitalvitrin.test:3000')) {
-    slug = hostname.replace('.dijitalvitrin.test:3000', '');
+  } else if (hostname === 'localhost:3000' || hostname === 'dijitalvitrin.com') {
+    // E2E Test Desteği: localhost:3000/slug/... yapısını kontrol et
+    const pathParts = url.pathname.split('/').filter(Boolean);
+    if (pathParts.length > 0 && !pathParts[0].startsWith('_') && pathParts[0] !== 'favicon.ico') {
+      slug = pathParts[0];
+      // URL'den slug segmentini çıkarıp rewrite yapıyoruz
+      const remainingPath = '/' + pathParts.slice(1).join('/');
+      const newUrl = new URL(`/${slug}${remainingPath}${url.search}`, req.url);
+      return NextResponse.rewrite(newUrl);
+    }
   }
 
   if (slug) {

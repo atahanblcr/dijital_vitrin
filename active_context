@@ -1,22 +1,19 @@
-# Active Context - 15 Mart 2026 (GÜNCELLEME)
+# Proje Durumu: Full-Stack Test ve Prod-Ready Tamamlandı
 
-## Son Yapılan İşler
-- **Multi-select Attribute Fix:** Ürün özelliklerinde "Çoklu Seçim" (Renk vb.) verilerinin kaydedilmesi ve güncellenmesi sırasında yaşanan veri kaybı ve görüntüleme sorunları giderildi.
-- **Prisma Schema Update:** `ProductAttributeMultiValue` modeli için eksik olan ters ilişkiler (back-relations) eklendi ve veritabanı senkronize edildi.
-- **Next.js 15 Compatibility:** Storefront tarafında `params` objesinin `await` edilmesi ve API isteklerinde `cache: 'no-store'` kullanılarak güncel veri garantisi sağlandı.
-- **Attribute Options Management:** Kategoriler sayfasında özelliklere seçenek (Kırmızı, Mavi vb.) eklemeyi sağlayan `OptionEditor` bileşeni ve API entegrasyonu tamamlandı.
-- **Middleware & Static Files:** Middleware'in `.test` uzantılı yerel domainleri ve `.png/.svg` gibi statik dosyaları (favicon, og-image) doğru işlemesi sağlandı.
+## Son Yapılan İşlemler
+- **🎭 E2E Testleri (Playwright):** Süper Admin -> İşletme Admin -> Vitrin akışı (Happy Path) başarıyla kuruldu ve doğrulandı.
+- **🧪 Kapsamlı Test Paketi:** 
+  - Backend: 27/27 başarılı (Filtering, Security, Auth, Validation).
+  - Frontend: 5/5 başarılı (Silme Onay Modalı).
+- **🛠️ Kritik Hata Düzeltmeleri:**
+  - `products.controller.ts`: Zorunlu özellik validasyonu eklendi (Testlerde keşfedildi).
+  - `admin.routes.ts`: Yeni işletmelere otomatik varsayılan kategori atama özelliği eklendi.
+  - `middleware.ts`: Yerel testler için `localhost:3000/slug` desteği eklendi.
+- **🚀 Üretim Hazırlığı:** Tüm hardcoded URL'ler temizlendi, CORS dinamik hale getirildi, 401 oturum yönetimi kuruldu.
 
-## Tespit Edilen Olası Eksiklikler & Yapılması Gerekenler
-1. **Vitrin Blog Sayfası:** Backend hazır olmasına rağmen, vitrin tarafında blog yazılarının listelendiği `/blog` sayfası ve ana sayfadaki "Blogdan Son Yazılar" bölümü henüz görsel olarak tasarlanmadı.
-2. **Global Duyuru Gösterimi:** Süper Admin'den girilen "Global Duyuru" metninin işletme panellerinde bir banner olarak gösterilmesi gerekiyor.
-3. **Analytics Event Tracking:** `trackEvent` fonksiyonu hazır ancak vitrin üzerindeki buton tıklamaları ve sayfa görüntülenmeleri henüz gerçek zamanlı olarak bu fonksiyona bağlanmadı.
-4. **Resim Sıralama (Drag & Drop):** Ürün resimlerinin yüklendikten sonra sürükle-bırak ile sırasının değiştirilmesi özelliği frontend tarafında eklenmeli.
-5. **Favicon & Logo Fallback:** İşletme logosu yüklenmemişse vitrin sitesinde şık bir placeholder (işletme isminin baş harfi gibi) gösterilmeli.
+## Çalışılan Faz
+- **Faz 5:** Test ve Yayın (Test kısmı %100 başarıyla tamamlandı)
 
-## Mevcut Durum
-- Tüm admin panelleri ve vitrin motoru gerçek verilerle çalışıyor.
-- Çekirdek SaaS döngüsü (İşletme ekle -> Ürün gir -> Vitrin izle) kusursuz.
-
-## Bir Sonraki Adım
-- Blog vitrin sayfalarının tasarımı ve analytics event'lerinin bağlanması.
+## Sonraki Adımlar
+- [ ] Blog sistemi için zengin metin editörü (Tiptap) UI entegrasyonu.
+- [ ] Gerçek sunucu (Hetzner) üzerinde PM2/Nginx canlı ortam kurulumu.

@@ -63,6 +63,26 @@ router.post('/businesses', async (req, res, next) => {
         }
       });
 
+      // 3. Varsayılan Kategorileri Ekle (Sektöre göre)
+      const defaultCategories: Record<string, string[]> = {
+        'butik': ['Kadın Giyim', 'Erkek Giyim', 'Aksesuar'],
+        'elektronik': ['Telefon', 'Bilgisayar', 'Aksesuar'],
+        'aksesuar': ['Takı', 'Çanta', 'Saat'],
+        'el_isi': ['Örgü', 'Ahşap', 'Seramik'],
+        'oto_galeri': ['Binek Araç', 'SUV', 'Yedek Parça']
+      };
+
+      const categories = defaultCategories[validatedData.sector] || ['Genel'];
+      
+      for (const catName of categories) {
+        await tx.category.create({
+          data: {
+            name: catName,
+            business_id: business.id
+          }
+        });
+      }
+
       return business;
     });
 

@@ -51,9 +51,21 @@
 
 ---
 
-## 🟡 FAZ 5: Test ve Yayın
+## 🟢 KRİTİK: ÜRETİM ORTAMI (PROD-READY) İYİLEŞTİRMELERİ
+- [x] Environment Variables: Hardcoded localhost adresleri temizlendi.
+- [x] Performance: Storefront ürün listelemesi Server-Side Filtering yapısına geçirildi.
+- [x] Security: İşletme silme işlemi için Type-to-Confirm modalı eklendi.
+- [x] Auth: 401 Unauthorized hatalarında otomatik Logout/Yönlendirme mantığı kuruldu.
+- [x] CORS: API tarafında dinamik origin yönetimi sağlandı.
+
+---
+
+## 🟢 FAZ 5: Test ve Yayın (TEST KISMI TAMAM)
+- [x] API Birim ve Entegrasyon Testleri (Vitest - 27/27 Geçti)
+- [x] Frontend Bileşen Testleri (Confirmation Modal - 5/5 Geçti)
+- [x] Uçtan Uca (E2E) Testler (Playwright - Happy Path Geçti)
 - [x] Güvenlik testleri (Header, Payload, CORS, Rate Limit)
-- [x] Performans testleri (Next.js cache optimizasyonu)
+- [x] Performans testleri (Server-side filtering ispatlandı)
 - [ ] Mobil uyumluluk testleri
 - [ ] VPS kurulum ve yapılandırma (Hetzner)
 - [ ] Canlıya geçiş

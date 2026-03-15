@@ -2,7 +2,8 @@
   "name": "@dijital-vitrin/database",
   "version": "1.0.0",
   "private": true,
-  "main": "index.js",
+  "main": "./index.ts",
+
   "scripts": {
     "migrate": "prisma migrate dev",
     "seed": "ts-node prisma/seed.ts",

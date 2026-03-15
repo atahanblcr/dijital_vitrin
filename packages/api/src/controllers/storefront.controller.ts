@@ -42,6 +42,33 @@ export const getBusinessBySlug = async (req: Request, res: Response, next: NextF
   }
 };
 
+export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { slug } = req.params;
+    const { categoryId } = req.query;
+    
+    const business = await prisma.business.findUnique({ where: { slug } });
+    if (!business) throw new AppError(404, 'İşletme bulunamadı');
+
+    const products = await prisma.product.findMany({
+      where: { 
+        business_id: business.id, 
+        is_active: true,
+        ...(categoryId ? { category_id: String(categoryId) } : {})
+      },
+      include: {
+        images: { orderBy: { sort_order: 'asc' } },
+        category: true
+      },
+      orderBy: { created_at: 'desc' }
+    });
+
+    res.json({ data: products });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getProductBySlug = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { slug, productSlug } = req.params;
