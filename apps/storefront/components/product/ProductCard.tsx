@@ -22,7 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, businessSlug }) => {
       transition={{ duration: 0.3 }}
       className="group relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md active:scale-95 transition-all duration-300"
     >
-      <Link href={`/urun/${product.slug}`} className="block">
+      <Link href={`/${businessSlug}/urun/${product.slug}`} className="block">
         <div className="relative aspect-square overflow-hidden bg-gray-50">
           {mainImage ? (
             <img

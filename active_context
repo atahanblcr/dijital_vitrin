@@ -6,15 +6,14 @@
   - Ürün kartları profesyonelleştirildi: Resimler `aspect-square`, `object-cover` yapıldı, arkaplana hafif gri renk verildi ve dokunma hissini artıran mikro etkileşimler (`active:scale-95`) eklendi.
   - Ürün detay sayfasındaki CTA butonu her zaman ekranın en altında yapışkan kalacak şekilde (Fixed Bottom Bar) yeniden tasarlandı.
   - Ürünlerin listelenemediği durumlar için profesyonel, ikonlu ve bilgilendirici bir `EmptyState` bileşeni eklendi.
-- **🛠️ Kritik Çözümler:**
-  - Next.js vitrin uygulamasındaki agresif cache sorunu (`cache: 'no-store'`) devre dışı bırakılarak çözüldü.
-  - WhatsApp telefon numarasının `WhatsAppButton.tsx` ve `page.tsx` içinde her türlü boşluk ve işaretten arındırılması sağlandı.
-  - Next.js `next.config.js` dosyası eklenerek `res.cloudinary.com` domaini Image komponenti için yapılandırıldı.
-  - Express middleware içerisindeki `express.json()` ve `express.urlencoded()` boyut sınırları `10mb`'a çıkarıldı.
-  - Storefront uygulamasındaki import (`../../...`) path hataları giderildi.
+- **🛠️ Rotalama ve Bağlantı Çözümleri:**
+  - `ProductCard` ve `CampaignCarousel` içindeki bağlantılara `businessSlug` prefix'i eklenerek `localhost` üzerinde ürün detay sayfalarına erişim sorunu çözüldü.
+  - `middleware.ts` güncellenerek `/slug/...` ile başlayan path'lerin (localhost test yapısı) gereksiz yere tekrar yönlendirilmesi ve 404 vermesi engellendi.
+  - `lib/api.ts` ve `.env` dosyaları `127.0.0.1` kullanımına zorlanarak DNS kaynaklı bağlantı hataları giderildi.
+  - API isteklerine detaylı loglama eklenerek hata ayıklama süreci iyileştirildi.
 
 ## Çalışılan Faz
-- **Faz 5:** UI/UX İyileştirmeleri ve Canlıya Hazırlık (%100)
+- **Faz 5:** UI/UX İyileştirmeleri ve Kritik Hata Düzeltmeleri (%100)
 
 ## Sonraki Adımlar
 - [ ] Gerçek sunucu (Hetzner) üzerinde PM2/Nginx canlı ortam kurulumu.

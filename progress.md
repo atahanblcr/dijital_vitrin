@@ -72,6 +72,7 @@
 - [x] Güvenlik testleri (Header, Payload, CORS, Rate Limit)
 - [x] Performans testleri (Server-side filtering ispatlandı)
 - [x] Kritik Optimizasyonlar (Next.js Cache iptali, WhatsApp Numarası Formatlama, Görsel Domain İzinleri, Express Payload Artırımı)
+- [x] **YENİ:** Localhost ve Subdomain rotalama çakışmaları giderildi, dinamik link yapısı kuruldu.
 - [x] Mobil UI/UX App-Like Testleri (Sticky davranışlar vb.)
 - [ ] VPS kurulum ve yapılandırma (Hetzner)
 - [ ] Canlıya geçiş

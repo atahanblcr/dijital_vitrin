@@ -1,16 +1,25 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000';
 
 export async function getStorefrontData(slug: string) {
-  const res = await fetch(`${API_URL}/api/storefront/${slug}`, {
-    cache: 'no-store', // Always fetch fresh data to avoid stale cache
-  });
-  
-  if (!res.ok) {
-    if (res.status === 404) return null;
-    throw new Error('Failed to fetch storefront data');
+  console.log('[API] Fetching storefront data for slug:', slug, 'from', API_URL);
+  try {
+    const res = await fetch(`${API_URL}/api/storefront/${slug}`, {
+      cache: 'no-store', // Always fetch fresh data to avoid stale cache
+    });
+    
+    if (!res.ok) {
+      console.log('[API] Storefront data fetch failed:', res.status, res.statusText);
+      if (res.status === 404) return null;
+      throw new Error(`Failed to fetch storefront data: ${res.statusText}`);
+    }
+    
+    const data = await res.json();
+    console.log('[API] Storefront data fetched successfully');
+    return data;
+  } catch (err) {
+    console.error('[API] Error in getStorefrontData:', err);
+    throw err;
   }
-  
-  return res.json();
 }
 
 export async function getStorefrontProducts(slug: string, categoryId?: string) {
@@ -19,6 +28,7 @@ export async function getStorefrontProducts(slug: string, categoryId?: string) {
     url.searchParams.append('categoryId', categoryId);
   }
   
+  console.log('[API] Fetching products:', url.toString());
   const res = await fetch(url.toString(), {
     cache: 'no-store', // Always fetch fresh products
   });

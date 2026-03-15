@@ -41,6 +41,10 @@ export function middleware(req: NextRequest) {
 
   if (slug) {
     // 3. Rewrite: URL'yi içten /slug/... şeklinde değiştir
+    // Eğer path zaten slug ile başlıyorsa (örn: localhost testlerinde), rewrite yapmaya gerek yok
+    if (url.pathname.startsWith(`/${slug}`)) {
+      return NextResponse.next();
+    }
     const newUrl = new URL(`/${slug}${url.pathname}${url.search}`, req.url);
     return NextResponse.rewrite(newUrl);
   }
