@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import { getStorefrontData } from '../../../../lib/api';
+import { getStorefrontData } from '../../../lib/api';
 import { Metadata } from 'next';
-import ProductCatalog from '../../../../components/sections/ProductCatalog';
+import ProductCatalog from '../../../components/sections/ProductCatalog';
 
 export async function generateMetadata({ params }: any): Promise<Metadata> {
   const resolvedParams = await params;

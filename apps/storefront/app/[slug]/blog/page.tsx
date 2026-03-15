@@ -1,5 +1,5 @@
-import { getStorefrontBlogs } from '../../../../lib/api';
-import BlogCard from '../../../../components/blog/BlogCard';
+import { getStorefrontBlogs } from '../../../lib/api';
+import BlogCard from '../../../components/blog/BlogCard';
 import { Metadata } from 'next';
 
 interface PageProps {

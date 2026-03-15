@@ -3,7 +3,7 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getWhatsAppUrl } from '../../../../../packages/shared/utils/whatsapp';
+import { getWhatsAppUrl } from '../../../../packages/shared/utils/whatsapp';
 
 interface WhatsAppButtonProps {
   phoneNumber: string;

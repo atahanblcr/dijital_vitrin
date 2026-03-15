@@ -11,11 +11,23 @@ export function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const hostname = req.headers.get('host') || '';
 
+  // E2E Test Desteği: localhost:3000/slug/... yapısını kontrol et
+  if (hostname === 'localhost:3000' || hostname === 'dijitalvitrin.com') {
+    const pathParts = url.pathname.split('/').filter(Boolean);
+    // Eğer path bir slug ile başlıyorsa (ve next.js internal değilse)
+    if (pathParts.length > 0 && !pathParts[0].startsWith('_') && pathParts[0] !== 'favicon.ico') {
+      const slug = pathParts[0];
+      // URL zaten /slug formatında, bu yüzden rewrite yapmaya gerek yok, Next.js app/[slug] klasörünü otomatik yakalar.
+      // Sadece ana domainde olduğumuzu biliyoruz ve Next.js'e bırakıyoruz.
+      return NextResponse.next();
+    }
+  }
+
   // 1. Ana domain kontrolü (localhost:3000 veya dijitalvitrin.com)
   const isBaseDomain = hostname === 'localhost:3000' || hostname === 'dijitalvitrin.com';
   
   if (isBaseDomain) {
-    // Ana domaindeysek hiçbir şey yapma (veya landing page'e yönlendir)
+    // Ana domaindeysek ve bir path yoksa hiçbir şey yapma
     return NextResponse.next();
   }
 
@@ -25,22 +37,11 @@ export function middleware(req: NextRequest) {
     slug = hostname.replace('.localhost:3000', '');
   } else if (hostname.endsWith('.dijitalvitrin.com')) {
     slug = hostname.replace('.dijitalvitrin.com', '');
-  } else if (hostname === 'localhost:3000' || hostname === 'dijitalvitrin.com') {
-    // E2E Test Desteği: localhost:3000/slug/... yapısını kontrol et
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    if (pathParts.length > 0 && !pathParts[0].startsWith('_') && pathParts[0] !== 'favicon.ico') {
-      slug = pathParts[0];
-      // URL'den slug segmentini çıkarıp rewrite yapıyoruz
-      const remainingPath = '/' + pathParts.slice(1).join('/');
-      const newUrl = new URL(`/${slug}${remainingPath}${url.search}`, req.url);
-      return NextResponse.rewrite(newUrl);
-    }
   }
 
   if (slug) {
     // 3. Rewrite: URL'yi içten /slug/... şeklinde değiştir
     const newUrl = new URL(`/${slug}${url.pathname}${url.search}`, req.url);
-    console.log(`[MIDDLEWARE] Rewriting ${hostname}${url.pathname} to ${newUrl.pathname}`);
     return NextResponse.rewrite(newUrl);
   }
 

@@ -1,22 +1,21 @@
 # Proje Durumu: Full-Stack Test ve Prod-Ready Tamamlandı
 
 ## Son Yapılan İşlemler
+- **🎨 Storefront UI/UX İyileştirmeleri (Mobil App Hissiyatı):**
+  - Kategori menüsü hap (pill) tasarımına geçirilip yatay kaydırılabilir ve sayfada aşağı inildiğinde yapışkan (sticky top-0) olacak şekilde güncellendi.
+  - Ürün kartları profesyonelleştirildi: Resimler `aspect-square`, `object-cover` yapıldı, arkaplana hafif gri renk verildi ve dokunma hissini artıran mikro etkileşimler (`active:scale-95`) eklendi.
+  - Ürün detay sayfasındaki CTA butonu her zaman ekranın en altında yapışkan kalacak şekilde (Fixed Bottom Bar) yeniden tasarlandı.
+  - Ürünlerin listelenemediği durumlar için profesyonel, ikonlu ve bilgilendirici bir `EmptyState` bileşeni eklendi.
 - **🛠️ Kritik Çözümler:**
   - Next.js vitrin uygulamasındaki agresif cache sorunu (`cache: 'no-store'`) devre dışı bırakılarak çözüldü.
   - WhatsApp telefon numarasının `WhatsAppButton.tsx` ve `page.tsx` içinde her türlü boşluk ve işaretten arındırılması sağlandı.
   - Next.js `next.config.js` dosyası eklenerek `res.cloudinary.com` domaini Image komponenti için yapılandırıldı.
   - Express middleware içerisindeki `express.json()` ve `express.urlencoded()` boyut sınırları `10mb`'a çıkarıldı.
-- **🧪 Eklenen Kritik Testler (`critical_fixes.test.ts`):**
-  - WhatsApp Formatter, Slug Collision, Payload Limit ve Subdomain Logic başarıyla test edildi (12/12 Geçti).
-- **📝 Blog Sistemi Tamamlandı:**
-  - Backend tarafında eksik olan `getBlogPostBySlug` endpoint'i ve rotası eklendi.
-  - Admin Panelinde Blog Editor'e **Kapak Görseli URL** alanı ve Tiptap **Resim Ekleme** aracı eklendi.
-  - Vitrin (Storefront) tarafında boş olan **Hakkımızda** ve **Ürünler** sayfaları modern UI ile dolduruldu.
-  - Next.js 15 `params` await zorunluluğu tüm vitrin sayfalarında (Blog, Sitemap, Robots, Home vb.) uygulandı.
+  - Storefront uygulamasındaki import (`../../...`) path hataları giderildi.
 
 ## Çalışılan Faz
-- **Faz 5:** Test ve Yayın (Bugs & Optimizations %100, Features %100)
+- **Faz 5:** UI/UX İyileştirmeleri ve Canlıya Hazırlık (%100)
 
 ## Sonraki Adımlar
 - [ ] Gerçek sunucu (Hetzner) üzerinde PM2/Nginx canlı ortam kurulumu.
-- [ ] Mobil uyumluluk manuel kontrolleri.
+- [ ] E2E (Uçtan uca) testlerin yeni tasarımlarla tekrar çalıştırılması.

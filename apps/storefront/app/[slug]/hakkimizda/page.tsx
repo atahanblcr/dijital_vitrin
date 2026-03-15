@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
-import { getStorefrontData } from '../../../../lib/api';
+import { getStorefrontData } from '../../../lib/api';
 import { Metadata } from 'next';
 import { Clock, MapPin, Phone, Instagram, Facebook } from 'lucide-react';
-import { formatWhatsAppNumber } from '../../../../../../packages/shared/utils/whatsapp';
+import { formatWhatsAppNumber } from '../../../../../packages/shared/utils/whatsapp';
 
 export async function generateMetadata({ params }: any): Promise<Metadata> {
   const resolvedParams = await params;

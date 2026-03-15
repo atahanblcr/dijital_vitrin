@@ -3,6 +3,7 @@
 import React from 'react';
 import ProductCard from './ProductCard';
 import { motion } from 'framer-motion';
+import EmptyState from '../ui/EmptyState';
 
 interface ProductGridProps {
   products: any[];
@@ -11,11 +12,7 @@ interface ProductGridProps {
 
 const ProductGrid: React.FC<ProductGridProps> = ({ products, businessSlug }) => {
   if (products.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 text-gray-400">
-        <p className="text-xl font-medium">Bu kategoride henüz ürün bulunmuyor.</p>
-      </div>
-    );
+    return <EmptyState />;
   }
 
   return (

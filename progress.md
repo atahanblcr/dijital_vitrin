@@ -26,7 +26,10 @@
 - [x] Renk Teması Sistemi
 - [x] Vitrin Tasarımı ve Animasyonlar (Ürün Grid ve Kartlar)
 - [x] Ürün Detayı ve WhatsApp Entegrasyonu
-- [x] **YENİ:** Ürün kartı hover efektleri ve mobil yapışkan iletişim barı eklendi.
+- [x] **YENİ:** Ürün kartı hover efektleri, mobil uygulama hissi (aspect-square, active:scale-95).
+- [x] **YENİ:** Yapışkan (Sticky) kategori yatay kaydırma çubuğu.
+- [x] **YENİ:** Her zaman görünür (Fixed Bottom Bar) WhatsApp sipariş butonu eklendi.
+- [x] **YENİ:** Ürün yok durumları için profesyonel EmptyState UI bileşeni eklendi.
 - [x] Blog Listeleme (Frontend ve Backend %100)
 - [x] Hakkımızda ve Ürünler Sayfaları (Storefront)
 - [x] Sitemap ve robots.txt (Next.js 15 Fix)
@@ -69,7 +72,7 @@
 - [x] Güvenlik testleri (Header, Payload, CORS, Rate Limit)
 - [x] Performans testleri (Server-side filtering ispatlandı)
 - [x] Kritik Optimizasyonlar (Next.js Cache iptali, WhatsApp Numarası Formatlama, Görsel Domain İzinleri, Express Payload Artırımı)
-- [ ] Mobil uyumluluk testleri
+- [x] Mobil UI/UX App-Like Testleri (Sticky davranışlar vb.)
 - [ ] VPS kurulum ve yapılandırma (Hetzner)
 - [ ] Canlıya geçiş
 
