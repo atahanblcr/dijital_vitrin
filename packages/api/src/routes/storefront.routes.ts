@@ -8,5 +8,6 @@ router.get('/:slug', storefrontController.getBusinessBySlug);
 router.get('/:slug/products', storefrontController.getProducts);
 router.get('/:slug/products/:productSlug', storefrontController.getProductBySlug);
 router.get('/:slug/blog', storefrontController.getBlogsBySlug);
+router.get('/:slug/blog/:blogSlug', storefrontController.getBlogPostBySlug);
 
 export default router;

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
-import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Save, Calendar, CheckCircle } from 'lucide-react';
+import TiptapImage from '@tiptap/extension-image';
+import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Save, Calendar, CheckCircle } from 'lucide-react';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,6 +13,7 @@ import { toast } from 'sonner';
 const blogSchema = z.object({
   title: z.string().min(1, 'Başlık zorunludur').max(150, 'Max 150 karakter'),
   content: z.string().min(1, 'İçerik boş bırakılamaz'),
+  cover_image_url: z.string().url('Geçerli bir URL giriniz').optional().nullable().or(z.literal('')),
   meta_description: z.string().max(160, 'Max 160 karakter').optional().nullable(),
   status: z.enum(['draft', 'published']),
   published_at: z.string().optional().nullable() // yyyy-MM-ddThh:mm form formatı
@@ -21,6 +23,13 @@ type BlogForm = z.infer<typeof blogSchema>;
 
 const MenuBar = ({ editor }: { editor: any }) => {
   if (!editor) return null;
+
+  const addImage = () => {
+    const url = window.prompt('Resim URL:');
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run();
+    }
+  };
 
   return (
     <div className="flex items-center gap-1 border-b border-gray-300 p-2 bg-gray-50 rounded-t-lg">
@@ -41,6 +50,9 @@ const MenuBar = ({ editor }: { editor: any }) => {
       >
         <LinkIcon className="w-4 h-4" />
       </button>
+      <button type="button" onClick={addImage} className="p-1.5 rounded hover:bg-gray-200">
+        <ImageIcon className="w-4 h-4" />
+      </button>
     </div>
   );
 };
@@ -51,14 +63,21 @@ const BlogEditor = ({ onBack, onSuccess, initialData }: { onBack: () => void, on
     defaultValues: initialData ? {
       title: initialData.title,
       content: initialData.content,
+      cover_image_url: initialData.cover_image_url || '',
       meta_description: initialData.meta_description,
       status: initialData.status,
       published_at: initialData.published_at ? new Date(initialData.published_at).toISOString().substring(0, 16) : null
-    } : { status: 'draft', content: '' }
+    } : { status: 'draft', content: '', cover_image_url: '' }
   });
 
   const editor = useEditor({
-    extensions: [StarterKit, Link.configure({ openOnClick: false })],
+    extensions: [
+      StarterKit, 
+      Link.configure({ openOnClick: false }),
+      TiptapImage.configure({
+        allowBase64: true,
+      })
+    ],
     content: initialData?.content || '',
     onUpdate: ({ editor }) => {
       setValue('content', editor.getHTML(), { shouldValidate: true });
@@ -110,6 +129,16 @@ const BlogEditor = ({ onBack, onSuccess, initialData }: { onBack: () => void, on
               className={`w-full text-2xl font-bold px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/30 ${errors.title ? 'border-red-500' : 'border-gray-200'}`}
             />
             {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Kapak Görseli URL</label>
+            <input 
+              {...register('cover_image_url')} 
+              placeholder="https://... (Örn: Cloudinary linki)" 
+              className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/30 ${errors.cover_image_url ? 'border-red-500' : 'border-gray-200'}`}
+            />
+            {errors.cover_image_url && <p className="text-xs text-red-500">{errors.cover_image_url.message}</p>}
           </div>
 
           <div className={`border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-orange-500/30 ${errors.content ? 'border-red-500' : 'border-gray-300'}`}>

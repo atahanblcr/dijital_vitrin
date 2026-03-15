@@ -7,8 +7,9 @@ interface PageProps {
   params: { slug: string };
 }
 
-export default async function StorefrontHomePage({ params }: PageProps) {
-  const data = await getStorefrontData(params.slug);
+export default async function StorefrontHomePage({ params }: any) {
+  const resolvedParams = await params;
+  const data = await getStorefrontData(resolvedParams.slug);
 
   if (!data?.business) {
     return null; // Layout will handle the 404

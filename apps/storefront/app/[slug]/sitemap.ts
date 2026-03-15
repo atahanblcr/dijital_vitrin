@@ -5,8 +5,9 @@ interface SitemapProps {
   params: { slug: string };
 }
 
-export default async function sitemap({ params }: SitemapProps): Promise<MetadataRoute.Sitemap> {
-  const slug = params.slug;
+export default async function sitemap({ params }: any): Promise<MetadataRoute.Sitemap> {
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
   const baseUrl = process.env.NODE_ENV === 'production' 
     ? `https://${slug}.dijitalvitrin.com` 
     : `http://${slug}.localhost:3000`;
@@ -22,8 +23,8 @@ export default async function sitemap({ params }: SitemapProps): Promise<Metadat
       return [];
     }
 
-    const products = productsData.data || [];
-    const blogs = blogsData.data || [];
+    const products = productsData || [];
+    const blogs = blogsData || [];
 
     // Ana rotalar
     const routes = [

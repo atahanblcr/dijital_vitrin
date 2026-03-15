@@ -55,8 +55,14 @@ export default async function ProductDetailPage({ params }: any) {
   const business = storeData.business;
 
   // Numara formatlaması
-  const cleanPhone = business.whatsapp.replace(/[^0-9]/g, '');
-  const formattedPhone = cleanPhone.startsWith('90') ? cleanPhone : `90${cleanPhone.replace(/^0+/, '')}`;
+  const cleanPhone = business.whatsapp.replace(/\D/g, '');
+  let formattedPhone = cleanPhone;
+  if (formattedPhone.startsWith('0')) {
+    formattedPhone = formattedPhone.substring(1);
+  }
+  if (!formattedPhone.startsWith('90')) {
+    formattedPhone = `90${formattedPhone}`;
+  }
   const message = `Merhaba! ${business.name} — ${product.name} hakkında bilgi almak istiyorum.`;
   const waUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
 

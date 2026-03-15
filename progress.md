@@ -27,7 +27,9 @@
 - [x] Vitrin Tasarımı ve Animasyonlar (Ürün Grid ve Kartlar)
 - [x] Ürün Detayı ve WhatsApp Entegrasyonu
 - [x] **YENİ:** Ürün kartı hover efektleri ve mobil yapışkan iletişim barı eklendi.
-- [ ] Blog Listeleme (Backend hazır, Frontend UI bekleniyor)
+- [x] Blog Listeleme (Frontend ve Backend %100)
+- [x] Hakkımızda ve Ürünler Sayfaları (Storefront)
+- [x] Sitemap ve robots.txt (Next.js 15 Fix)
 
 ---
 
@@ -66,6 +68,7 @@
 - [x] Uçtan Uca (E2E) Testler (Playwright - Happy Path Geçti)
 - [x] Güvenlik testleri (Header, Payload, CORS, Rate Limit)
 - [x] Performans testleri (Server-side filtering ispatlandı)
+- [x] Kritik Optimizasyonlar (Next.js Cache iptali, WhatsApp Numarası Formatlama, Görsel Domain İzinleri, Express Payload Artırımı)
 - [ ] Mobil uyumluluk testleri
 - [ ] VPS kurulum ve yapılandırma (Hetzner)
 - [ ] Canlıya geçiş

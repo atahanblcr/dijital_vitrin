@@ -4,8 +4,9 @@ interface RobotsProps {
   params: { slug: string };
 }
 
-export default function robots({ params }: RobotsProps): MetadataRoute.Robots {
-  const slug = params.slug;
+export default async function robots({ params }: any): Promise<MetadataRoute.Robots> {
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
   const baseUrl = process.env.NODE_ENV === 'production' 
     ? `https://${slug}.dijitalvitrin.com` 
     : `http://${slug}.localhost:3000`;

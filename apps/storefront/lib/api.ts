@@ -2,7 +2,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export async function getStorefrontData(slug: string) {
   const res = await fetch(`${API_URL}/api/storefront/${slug}`, {
-    next: { revalidate: 60, tags: ['storefront', slug] },
+    cache: 'no-store', // Always fetch fresh data to avoid stale cache
   });
   
   if (!res.ok) {
@@ -20,7 +20,7 @@ export async function getStorefrontProducts(slug: string, categoryId?: string) {
   }
   
   const res = await fetch(url.toString(), {
-    next: { revalidate: 60, tags: ['products', slug, categoryId || 'all'] },
+    cache: 'no-store', // Always fetch fresh products
   });
   
   if (!res.ok) {
@@ -47,7 +47,7 @@ export async function getStorefrontProduct(slug: string, productSlug: string) {
 
 export async function getStorefrontBlogs(slug: string) {
   const res = await fetch(`${API_URL}/api/storefront/${slug}/blog`, {
-    next: { revalidate: 60, tags: ['blogs', slug] },
+    cache: 'no-store', // Always fetch fresh blogs
   });
   
   if (!res.ok) {
@@ -60,7 +60,7 @@ export async function getStorefrontBlogs(slug: string) {
 
 export async function getStorefrontBlog(slug: string, blogSlug: string) {
   const res = await fetch(`${API_URL}/api/storefront/${slug}/blog/${blogSlug}`, {
-    next: { revalidate: 60, tags: ['blog', slug, blogSlug] },
+    cache: 'no-store', // Always fetch fresh blog details
   });
   
   if (!res.ok) {

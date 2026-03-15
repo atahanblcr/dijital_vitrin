@@ -10,10 +10,13 @@ interface PageProps {
   params: { slug: string; blogSlug: string };
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: any): Promise<Metadata> {
+  const resolvedParams = await params;
+  const { slug, blogSlug } = resolvedParams;
+
   const [storeData, data] = await Promise.all([
-    getStorefrontData(params.slug),
-    getStorefrontBlog(params.slug, params.blogSlug)
+    getStorefrontData(slug),
+    getStorefrontBlog(slug, blogSlug)
   ]);
   
   if (!data?.blog || !storeData?.business) {
@@ -34,10 +37,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
-export default async function BlogPostPage({ params }: PageProps) {
+export default async function BlogPostPage({ params }: any) {
+  const resolvedParams = await params;
+  const { slug, blogSlug } = resolvedParams;
+
   const [storeData, data] = await Promise.all([
-    getStorefrontData(params.slug),
-    getStorefrontBlog(params.slug, params.blogSlug)
+    getStorefrontData(slug),
+    getStorefrontBlog(slug, blogSlug)
   ]);
 
   if (!data?.blog || !storeData?.business) {
@@ -59,7 +65,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       <BlogJsonLd post={post} business={business} />
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <Link 
-          href={`/${params.slug}/blog`}
+          href={`/${slug}/blog`}
           className="inline-flex items-center gap-2 text-gray-500 hover:text-[var(--color-primary)] transition-colors mb-8 font-medium"
         >
           <ArrowLeft size={20} />

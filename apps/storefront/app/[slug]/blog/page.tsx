@@ -11,8 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogListPage({ params }: PageProps) {
-  const data = await getStorefrontBlogs(params.slug);
-  const posts = data?.blogs || [];
+  const resolvedParams = await params;
+  const data = await getStorefrontBlogs(resolvedParams.slug);
+  const posts = data || [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -28,7 +29,7 @@ export default async function BlogListPage({ params }: PageProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {posts.map((post: any) => (
             <div key={post.id} className="h-full">
-              <BlogCard post={post} businessSlug={params.slug} />
+              <BlogCard post={post} businessSlug={resolvedParams.slug} />
             </div>
           ))}
         </div>

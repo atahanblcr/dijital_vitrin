@@ -3,6 +3,7 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getWhatsAppUrl } from '../../../../../packages/shared/utils/whatsapp';
 
 interface WhatsAppButtonProps {
   phoneNumber: string;
@@ -13,18 +14,12 @@ interface WhatsAppButtonProps {
 export default function WhatsAppButton({ phoneNumber, businessName, productName }: WhatsAppButtonProps) {
   if (!phoneNumber) return null;
 
-  // Numaranın başındaki olası 0 ve boşlukları temizle
-  const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
-  
-  // Eğer numara TR numarası formatındaysa ve başında 90 yoksa ekle
-  const formattedPhone = cleanPhone.startsWith('90') ? cleanPhone : `90${cleanPhone.replace(/^0+/, '')}`;
-
   let message = `Merhaba! ${businessName} ile iletişime geçmek istiyorum.`;
   if (productName) {
     message = `Merhaba! ${businessName} — ${productName} hakkında bilgi almak istiyorum.`;
   }
 
-  const url = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+  const url = getWhatsAppUrl(phoneNumber, message);
 
   return (
     <motion.a

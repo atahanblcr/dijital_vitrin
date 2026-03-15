@@ -161,3 +161,25 @@ export const getBlogsBySlug = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
+export const getBlogPostBySlug = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { slug, blogSlug } = req.params;
+    const business = await prisma.business.findUnique({ where: { slug } });
+    if (!business) throw new AppError(404, 'İşletme bulunamadı');
+
+    const blog = await prisma.blogPost.findFirst({
+      where: { 
+        business_id: business.id, 
+        slug: blogSlug,
+        status: 'published' 
+      }
+    });
+
+    if (!blog) throw new AppError(404, 'Blog yazısı bulunamadı');
+
+    res.json({ data: { blog } });
+  } catch (error) {
+    next(error);
+  }
+};
